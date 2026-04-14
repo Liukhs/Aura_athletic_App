@@ -28,7 +28,11 @@ class PaginaHome extends StatelessWidget{
         itemBuilder: (context, index) {
           return PostAllenamento(
             utente: "Utente ${index+1}",
-            descrizione: "Oggi allenamento spacca-muscoli! Sessione numero ${index+1} completata. #GymLife"
+            descrizione: "Oggi allenamento spacca-muscoli! Sessione numero ${index+1} completata. #GymLife",
+            nome: "SESSIONE GAMBE",
+            time: "55 min",
+            volume: "12.000 Kg",
+            bpm: "135"
           );
         }
       ),

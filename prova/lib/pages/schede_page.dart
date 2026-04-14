@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:prova/models/scheda_allenamento.dart';
+import 'package:prova/data/mock_data.dart';
+import 'package:prova/pages/dettaglio_allenamento_page.dart';
 
 class PaginaScheda extends StatelessWidget {
   const PaginaScheda({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final List<String> giorni = ['Lunedì', 'Mercoledì', 'Venerdì'];
+    final List<SchedaAllenamento> mieSchede = [schedaUno];
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -16,7 +19,7 @@ class PaginaScheda extends StatelessWidget {
         elevation: 0,
       ),
       body: ListView.builder(
-        itemCount: giorni.length,
+        itemCount: mieSchede.length,
         itemBuilder: (context, index) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -32,11 +35,11 @@ class PaginaScheda extends StatelessWidget {
                   backgroundColor: Colors.orangeAccent,
                   child: Icon(Icons.calendar_today, color: Colors.black),
                 ),
-                title: Text(giorni[index], style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                title: Text(mieSchede[index].titolo, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orangeAccent),
                 onTap: () {
                   // Qui collegherai l'apertura del giorno specifico
-                  print("Apro il giorno: ${giorni[index]}");
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaDettaglioAllenamento(scheda: mieSchede[index])));
                 },
               ),
             ),
