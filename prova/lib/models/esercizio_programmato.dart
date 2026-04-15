@@ -1,15 +1,13 @@
 import 'esercizio.dart';
+import 'package:prova/models/serie.dart';
 
 class EsercizioProgrammato {
   final Esercizio esercizio;
-  final int serie;
-  final int ripetizioni;
-  final int recupero;
+  List<Serie> serie;
+  
 
   EsercizioProgrammato({
     required this.esercizio,
     required this.serie,
-    required this.ripetizioni,
-    required this.recupero
   });
 }
