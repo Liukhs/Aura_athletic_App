@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
+import 'package:prova/pages/allenamento_page.dart';
 
-class PaginaDettaglioAllenamento extends StatelessWidget{
+class PaginaDettaglioAllenamento extends StatefulWidget{
   final SchedaAllenamento scheda;
 
   const PaginaDettaglioAllenamento({
     super.key,
     required this.scheda
   });
-
+  @override
+  State<PaginaDettaglioAllenamento> createState() => _PaginaDettaglioAllenamentoState();
+}
+class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: Text(scheda.titolo), centerTitle: true,),
+      appBar: AppBar(title: Text(widget.scheda.titolo), centerTitle: true,),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
-              width: double.infinity,
+              width: 200,
               height: 50,
               child: ElevatedButton(onPressed: (){
-                print("Allenamento attivato");
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaAllenamento(scheda:  widget.scheda)));
               }, style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orangeAccent,
                 foregroundColor: Colors.black,
@@ -29,7 +33,7 @@ class PaginaDettaglioAllenamento extends StatelessWidget{
                 borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("AVVIA ALLENAMENTO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              child: const Text("AVVIA ALLENAMENTO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             ),    
@@ -46,9 +50,9 @@ class PaginaDettaglioAllenamento extends StatelessWidget{
           ),
           Expanded(
             child: ListView.builder(
-              itemCount: scheda.esercizi.length,
+              itemCount: widget.scheda.esercizi.length,
               itemBuilder: (context, index){
-                final es = scheda.esercizi[index];
+                final es = widget.scheda.esercizi[index];
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   color: const Color(0xFF1E1E1E),
@@ -113,7 +117,15 @@ class PaginaDettaglioAllenamento extends StatelessWidget{
                               child: Text("${es.serie[i].ripetizioni}", style: const TextStyle(fontSize: 16)),
                             )
                           ),
-                          const Expanded(flex: 1, child: Icon(Icons.check_box_outline_blank, color: Colors.grey, size: 20)
+                          GestureDetector(
+                            onTap: (){
+                              setState(() {
+                                es.serie[i].completata = !es.serie[i].completata;
+                              });
+                            },
+                            child: Icon(es.serie[i].completata ? Icons.check_box : Icons.check_box_outline_blank,
+                            color: es.serie[i].completata ? Colors.orangeAccent : Colors.grey,
+                            ),
                           ),
                           ],
                         ),

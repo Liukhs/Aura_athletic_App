@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:prova/pages/home_page.dart';
 import 'package:prova/pages/profile_page.dart';
 import 'package:prova/pages/schede_page.dart';
+import 'package:prova/pages/riepilogo_page.dart';
+import 'package:prova/data/mock_data.dart';
+import 'package:prova/pages/login_page.dart';
 
 void main() {
   runApp(const GymApp());
@@ -17,7 +20,7 @@ class GymApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: const Color(0xFF121212),
       ),
-      home: const MainScreen(),
+      home: const PaginaLogin(),
     );
   }
 }
@@ -34,11 +37,21 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   // Qui elenchiamo le pagine da visualizzare
-  final List<Widget> _pagine = [
-    const PaginaHome(),
-    const PaginaScheda(),
-    const PaginaProfilo(),
-  ];
+  late List<Widget> _pagine;
+
+  @override
+  void initState(){
+    super.initState();
+
+    _pagine = [
+      PaginaHome(),
+      const PaginaScheda(),
+      const PaginaRiepilogo(),
+      PaginaProfilo()
+    ];
+
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +70,7 @@ class _MainScreenState extends State<MainScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Scheda'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: 'Riepilogo'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profilo'),
         ],
       ),

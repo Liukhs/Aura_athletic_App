@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/data/mock_data.dart';
 import 'package:prova/pages/dettaglio_allenamento_page.dart';
+import 'package:prova/data/sessione.dart';
 
 class PaginaScheda extends StatelessWidget {
+  
   const PaginaScheda({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
-    final List<SchedaAllenamento> mieSchede = [schedaUno];
+
+    final utenteLoggato = Sessione().utenteCorrente!;
+    final List<SchedaAllenamento> mieSchede = utenteLoggato.allenamenti;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
