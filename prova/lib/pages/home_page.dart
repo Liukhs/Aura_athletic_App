@@ -63,7 +63,7 @@ class PaginaHome extends StatelessWidget{
             padding: EdgeInsets.all(16.0),
             child: Text("Il tuo allenamento di oggi", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))
           ),
-          CardAllenamentoOdierno(),  
+          CardAllenamentoOdierno(context),  
         ],
       ),
     );

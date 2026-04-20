@@ -15,6 +15,7 @@ class PaginaLogin extends StatefulWidget {
 class _LoginPageState extends State<PaginaLogin> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _passwordVisibile = false;
 
   void _eseguiLogin() {
     String email = _emailController.text.trim();
@@ -112,13 +113,19 @@ class _LoginPageState extends State<PaginaLogin> {
                 // --- CAMPO PASSWORD ---
                 TextField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: _passwordVisibile ? true : false,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                       labelText: "Password",
                       labelStyle: const TextStyle(color: Colors.grey),
                       prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
-                      suffixIcon: const Icon(Icons.remove_red_eye, color: Colors.grey),
+                      suffixIcon: IconButton(
+                        icon: Icon(_passwordVisibile ? Icons.visibility : Icons.visibility_off, color: Colors.grey,),
+                        onPressed:(){ setState(() {
+                          _passwordVisibile = !_passwordVisibile;
+                        });
+                        },
+                        ),
                       filled: true,
                       fillColor: const Color(0xFF1E1E1E),
                       border: OutlineInputBorder(

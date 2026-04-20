@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prova/data/sessione.dart';
-Widget CardAllenamentoOdierno(){
+import 'package:prova/pages/allenamento_page.dart';
+Widget CardAllenamentoOdierno(BuildContext context){
   final utenteLoggato = Sessione().utenteCorrente;
   final primaScheda = utenteLoggato!.allenamenti.first;
 
@@ -46,11 +47,12 @@ Widget CardAllenamentoOdierno(){
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           ),
           onPressed: (){
-            print("Allenamento iniziato");
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>PaginaAllenamento(scheda: primaScheda)));
           },
           child: const SizedBox(
             width: double.infinity,
             child: Text("INIZIA ORA", textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold)),
+          
           ),
         )
       ],
