@@ -95,7 +95,7 @@ BEGIN
             VALUE "InternalName", "prova" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
             VALUE "OriginalFilename", "prova.exe" "\0"
-            VALUE "ProductName", "prova" "\0"
+            VALUE "ProductName", "Aura Athletic App" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

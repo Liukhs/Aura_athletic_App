@@ -4,7 +4,6 @@ import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/serie.dart';
 import 'package:prova/models/utente.dart';
 
-final Utente utente = Utente(id: "01", nome: "Luca", email: "Soldiluca.99@gmail.com", password: "Cipollino", allenamentiFatti: 0, fotoUrl: "https://i.pravatar.cc/300", pesoAttuale: 70, altezza: 180);
 final esercizioPanca = Esercizio(nome: "Panca piana(Bilancere)", id: "1", istruzioni: "Scendi al petto e spingi", categoria: "Petto");
 final esercizioSquat = Esercizio(
   id: '2', 
@@ -32,3 +31,5 @@ final List<Utente> utenti = [
   Utente(id: "01", nome: "Luca", email: "soldiluca.99@gmail.com", password: "Cipollino", allenamentiFatti: 0, fotoUrl: "https://i.pravatar.cc/300", pesoAttuale: 70, altezza: 180, allenamenti: [schedaUno, schedaUno]),
   Utente(id: "02", nome: "Daniele", email: "danielesoldi@gmail.com", password: "Daniele", allenamentiFatti: 120, fotoUrl: "https://i.pravatar.cc/300", pesoAttuale: 80, altezza: 180, allenamenti: [schedaUno, schedaUno])
 ]; 
+
+final Utente utenteSalvato = utenti[0]; // Simulazione di un utente già loggato in precedenza

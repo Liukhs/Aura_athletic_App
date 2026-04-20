@@ -92,8 +92,7 @@ flutter:
 
 flutter_native_splash:
   color: "#1E1E1E"
-  image: assets/aura_logo.jpg
-  branding_scale: 0.8
+  image: assets/aura_athleticApp.png
   android_12:
-    image: assets/aura_logo.jpg
+    image: assets/aura_athleticApp.png
     color: "#1E1E1E"

@@ -17,6 +17,20 @@ class _LoginPageState extends State<PaginaLogin> {
   final _passwordController = TextEditingController();
   bool _passwordVisibile = false;
 
+  
+  /*@override
+  void initState() {
+    super.initState();
+    Utente utenteLoggato = utenteSalvato;
+    for(Utente i in utenti){
+      if(utenteLoggato.email.toUpperCase() == i.email.toUpperCase() && utenteLoggato.password == i.password){
+        Sessione().utenteCorrente = i;
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const MainScreen()));
+      }
+    }
+  }
+  */
+
   void _eseguiLogin() {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -113,7 +127,7 @@ class _LoginPageState extends State<PaginaLogin> {
                 // --- CAMPO PASSWORD ---
                 TextField(
                   controller: _passwordController,
-                  obscureText: _passwordVisibile ? true : false,
+                  obscureText: _passwordVisibile ? false : true,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
                       labelText: "Password",
