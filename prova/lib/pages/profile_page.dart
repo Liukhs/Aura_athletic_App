@@ -2,19 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/utente.dart';
 
-class PaginaProfilo extends StatelessWidget {
-  final Utente utente = Sessione().utenteCorrente!;
+class PaginaProfilo extends StatefulWidget {
+  const PaginaProfilo({super.key});
 
-  PaginaProfilo({super.key});
+  @override
+  State<PaginaProfilo> createState() => _PaginaProfiloState();
+}
+
+class _PaginaProfiloState extends State<PaginaProfilo> {
+  // Recuperiamo l'utente dalla sessione
+  late Utente utente;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inizializziamo l'utente all'avvio
+    utente = Sessione().utenteCorrente!;
+  }
+
+  // Metodo per aggiornare la UI se serve (es. dopo un allenamento)
+  void aggiorna() {
+    setState(() {
+      utente = Sessione().utenteCorrente!;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Sfondo scuro coerente con il resto dell'app
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: Text(utente.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-        centerTitle: false,
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -65,7 +83,7 @@ class PaginaProfilo extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // --- SEZIONE GRAFICO ---
+            // --- SEZIONE GRAFICO (IL TUO CONTAINER VUOTO) ---
             const Row(
               children: [
                 Icon(Icons.show_chart, color: Colors.orangeAccent, size: 20),
@@ -92,7 +110,6 @@ class PaginaProfilo extends StatelessWidget {
             const SizedBox(height: 30),
 
             // --- PANNELLO DI CONTROLLO (GRID 2x2) ---
-            // GridView da modificare per non avere i tasti larghi quanto tutto lo spazio disponibile
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -116,32 +133,26 @@ class PaginaProfilo extends StatelessWidget {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return Card(
-                  color: const Color(0xFF1E1E1E),
-                  margin: const EdgeInsets.only(bottom: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  child: ListTile(
-                    leading: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
-                    title: Text("Allenamento ${5 - index}"),
-                    subtitle: const Text("12 Aprile - 1h 15m - 4500kg"),
-                    trailing: const Icon(Icons.chevron_right, color: Colors.grey),
-                    onTap: () => print("Dettaglio allenamento"),
+            
+            // CONTROLLO LISTA VUOTA
+            utente.cronologiaAllenamenti.isEmpty 
+                ? _buildVuoto() 
+                : ListView.builder(
+                    shrinkWrap: true, // QUESTO SERVE PER NON FAR CRASHARE TUTTO
+                    physics: const NeverScrollableScrollPhysics(), // DISABILITA LO SCROLL INTERNO
+                    itemCount: utente.cronologiaAllenamenti.length,
+                    itemBuilder: (context, index) {
+                      return _buildCardCronologia(index);
+                    },
                   ),
-                );
-              },
-            ),
           ],
         ),
       ),
     );
   }
 
-  // Funzione per creare i bottoni della griglia
+  // --- I TUOI METODI HELPER (SPOSTATI DENTRO LO STATE) ---
+
   Widget _buildPannelloButton(String label, IconData icon) {
     return Container(
       decoration: BoxDecoration(
@@ -159,6 +170,36 @@ class PaginaProfilo extends StatelessWidget {
             Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCardCronologia(int index) {
+    final sessione = utente.cronologiaAllenamenti[index];
+    return Card(
+      color: const Color(0xFF1E1E1E),
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
+        title: Text(sessione.nome),
+        subtitle: Text("Vol: ${sessione.volume} - Tempo: ${sessione.tempoMinuti} - BPM: ${sessione.bpm}"),
+      ),
+    );
+  }
+
+  Widget _buildVuoto() {
+    return Center(
+      child: Column(
+        children: [
+          Icon(Icons.history, size: 80, color: Colors.grey[800]),
+          const SizedBox(height: 16),
+          const Text(
+            "Non hai ancora completato allenamenti.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey),
+          )
+        ],
       ),
     );
   }

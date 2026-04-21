@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/pages/allenamento_page.dart';
+import 'package:prova/data/sessione.dart';
 
 class PaginaDettaglioAllenamento extends StatefulWidget{
   final SchedaAllenamento scheda;
@@ -25,7 +26,10 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
               width: 200,
               height: 50,
               child: ElevatedButton(onPressed: (){
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaAllenamento(scheda:  widget.scheda)));
+                final nuovaScheda = widget.scheda.copy();
+                Sessione().schedaAttiva = nuovaScheda;
+                Sessione().orarioInizio = DateTime.now();
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaAllenamento(scheda:  nuovaScheda)));
               }, style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orangeAccent,
                 foregroundColor: Colors.black,
@@ -96,7 +100,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                           children: [
                             Expanded(flex: 1, child: Text("SERIE", textAlign: TextAlign.left, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
                             Expanded(flex: 2, child: Text("KG", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 2, child: Text("RIPETIZIONI", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
+                            Expanded(flex: 2, child: Text("REPS", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
                             Expanded(flex: 1, child: SizedBox())
                           ],
                         ),
@@ -117,16 +121,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                               child: Text("${es.serie[i].ripetizioni}", style: const TextStyle(fontSize: 16)),
                             )
                           ),
-                          GestureDetector(
-                            onTap: (){
-                              setState(() {
-                                es.serie[i].completata = !es.serie[i].completata;
-                              });
-                            },
-                            child: Icon(es.serie[i].completata ? Icons.check_box : Icons.check_box_outline_blank,
-                            color: es.serie[i].completata ? Colors.orangeAccent : Colors.grey,
-                            ),
-                          ),
+                          Expanded(flex: 1, child: Icon(Icons.check_box_outline_blank))
                           ],
                         ),
                       ),
@@ -137,6 +132,24 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
               },
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: 200,
+              height: 50,
+              child:ElevatedButton(
+            onPressed: (){},
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orangeAccent,
+                foregroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text("Aggiungi Esercizio", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
+          ),
+            ),
+          )
         ],
       )
     );

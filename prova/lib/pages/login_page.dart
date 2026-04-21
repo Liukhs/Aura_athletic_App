@@ -17,20 +17,6 @@ class _LoginPageState extends State<PaginaLogin> {
   final _passwordController = TextEditingController();
   bool _passwordVisibile = false;
 
-  
-  /*@override
-  void initState() {
-    super.initState();
-    Utente utenteLoggato = utenteSalvato;
-    for(Utente i in utenti){
-      if(utenteLoggato.email.toUpperCase() == i.email.toUpperCase() && utenteLoggato.password == i.password){
-        Sessione().utenteCorrente = i;
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const MainScreen()));
-      }
-    }
-  }
-  */
-
   void _eseguiLogin() {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
@@ -40,6 +26,7 @@ class _LoginPageState extends State<PaginaLogin> {
         if(email.toUpperCase() == i.email.toUpperCase() && password == i.password){
           accessed = true;
           Sessione().utenteCorrente = i;
+          Sessione().utenteSalvato = i;
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const MainScreen()));
         }else if(email.isEmpty || password.isEmpty){
           _mostraErrore("Compila tutti i campi");
