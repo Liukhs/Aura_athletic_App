@@ -5,10 +5,15 @@ import 'package:prova/pages/dettaglio_allenamento_page.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/pages/allenamento_page.dart';
 
-class PaginaScheda extends StatelessWidget {
+class PaginaScheda extends StatefulWidget {
   
   const PaginaScheda({super.key});
-  
+
+  @override
+  State<PaginaScheda> createState() => _paginaSchedaState();
+}
+
+class _paginaSchedaState extends State<PaginaScheda>{
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +78,11 @@ class PaginaScheda extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => PaginaAllenamento(scheda: nuovaScheda)
                   ),
-                );
+                ).then((_){
+                  if(mounted){
+                    setState((){});
+                  }
+                });
               },
             ),
           ],

@@ -126,6 +126,23 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
             ),
 
             const SizedBox(height: 30),
+            // --- PRENOTAZIONI ---
+            const Text(
+              "Prenotazioni",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12,),
+            utente.corsiPrenotati.isEmpty
+            ? _buildVuoto("Non hai corsi prenotati.")
+            : ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: utente.corsiPrenotati.length,
+              itemBuilder: (context, index){
+                return _buildCardPrenotazione(index);
+              },
+            ),
+            const SizedBox(height: 30),
 
             // --- CRONOLOGIA ALLENAMENTI ---
             const Text(
@@ -136,7 +153,7 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
             
             // CONTROLLO LISTA VUOTA
             utente.cronologiaAllenamenti.isEmpty 
-                ? _buildVuoto() 
+                ? _buildVuoto("Non hai ancora completato allenamenti.") 
                 : ListView.builder(
                     shrinkWrap: true, // QUESTO SERVE PER NON FAR CRASHARE TUTTO
                     physics: const NeverScrollableScrollPhysics(), // DISABILITA LO SCROLL INTERNO
@@ -188,14 +205,28 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
     );
   }
 
-  Widget _buildVuoto() {
+  Widget _buildCardPrenotazione(int index){
+    final sessione = utente.corsiPrenotati[index];
+    return Card(
+      color: const Color(0xFF1E1E1E),
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: const Icon(Icons.fitness_center, color: Colors.orangeAccent,),
+        title: Text(sessione.nome),
+        subtitle: Text(sessione.orario),
+      ),
+    );
+  }
+
+  Widget _buildVuoto(String messaggio) {
     return Center(
       child: Column(
         children: [
           Icon(Icons.history, size: 80, color: Colors.grey[800]),
           const SizedBox(height: 16),
-          const Text(
-            "Non hai ancora completato allenamenti.",
+          Text(
+            messaggio,
             textAlign: TextAlign.center,
             style: TextStyle(color: Colors.grey),
           )

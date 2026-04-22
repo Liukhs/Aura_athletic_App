@@ -109,18 +109,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.scheda.titolo),
-              Row(
-                children: [
-                  Text(
-                    "Durata: $_tempoTotale", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)
-                  ),
-                  SizedBox(width: 12),
-                  Text(
-                    "Volume: ${volume}", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent),
-                  )
-                ],
-              ),
+              Text(widget.scheda.titolo)
             ],
           ),
           const Spacer(),
@@ -134,6 +123,19 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
         ),
         body: Column(
           children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    Text("Durata: $_tempoTotale", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+                    const SizedBox(width: 12),
+                    Text("Volume: ${volume}", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent))
+                  ],
+                ),
+              ),
+            ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Align(
