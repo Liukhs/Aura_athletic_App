@@ -10,4 +10,6 @@ class SchedaAllenamento{
     required this.titolo,
     required this.esercizi
   });
+
+  SchedaAllenamento copy() => SchedaAllenamento(id: id, titolo: titolo, esercizi: esercizi.map((e)=> e.copy()).toList());
 }

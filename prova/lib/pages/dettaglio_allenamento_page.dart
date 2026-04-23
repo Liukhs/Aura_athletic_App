@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/pages/allenamento_page.dart';
 import 'package:prova/data/sessione.dart';
+import 'package:prova/widgets/video_esercizio.dart';
 
 class PaginaDettaglioAllenamento extends StatefulWidget{
   final SchedaAllenamento scheda;
@@ -69,13 +70,14 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                         Row(
                           children: [
                             Container(
-                              width: 45,
-                              height: 45,
+                              width: 60,
+                              height: 60,
+                              clipBehavior: Clip.antiAlias,
                               decoration: BoxDecoration(
                                 color: Colors.grey[800],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Icon(Icons.fitness_center, color: Colors.orangeAccent,),
+                              child: es.esercizio.urlVideo != null ? VideoEsercizio(url: es.esercizio.urlVideo!) : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -87,7 +89,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                                     children: [
                                       const Icon(Icons.timer_outlined, size: 14, color: Colors.grey),
                                       const SizedBox(width: 4),
-                                      Text("Recupero: ${es.serie[index].riposoSecondi}", style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                                      Text("Recupero: ${es.serie[0].riposoSecondi}", style: const TextStyle(color: Colors.grey, fontSize: 12)),
                                     ],
                                   ),
                                 ],

@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:prova/data/mock_data.dart';
 import 'package:prova/pages/riepilogo_page.dart';
 import 'package:prova/services/timer_service.dart';
+import 'package:prova/widgets/video_esercizio.dart';
 
 class PaginaAllenamento extends StatefulWidget {
   final SchedaAllenamento scheda;
@@ -164,13 +165,14 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                           Row(
                             children: [
                               Container(
-                                width: 45,
-                                height: 45,
+                                width: 60,
+                                height: 60,
+                                clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
                                   color: Colors.grey[800],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
+                                child: widget.scheda.esercizi[index].esercizio.urlVideo != null ? VideoEsercizio(url: widget.scheda.esercizi[index].esercizio.urlVideo!) : const Icon(Icons.fitness_center, color: Colors.orangeAccent) 
                               ),
                               const SizedBox(width: 12),
                               Expanded(

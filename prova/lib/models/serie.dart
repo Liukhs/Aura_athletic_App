@@ -1,6 +1,6 @@
 import 'package:prova/models/esercizio.dart';
-
-class Serie{
+///Rappresenta una serie di un [Esercizio]
+class Serie{//
   int? ripetizioni;
   double? peso;
   bool completata;
@@ -12,4 +12,11 @@ class Serie{
     this.completata = false,
     this.riposoSecondi
   });
+
+  Serie copy() => Serie(
+    ripetizioni: ripetizioni,
+    peso: peso,
+    riposoSecondi: riposoSecondi,
+    completata: false
+  );
 }

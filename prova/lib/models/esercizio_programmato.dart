@@ -10,4 +10,6 @@ class EsercizioProgrammato {
     required this.esercizio,
     required this.serie,
   });
+
+  EsercizioProgrammato copy() => EsercizioProgrammato(esercizio: esercizio, serie: serie.map((s) => s.copy()).toList());
 }
