@@ -26,5 +26,19 @@ class Corso{
     this.urlImg
   });
 
+  factory Corso.fromJson(
+    Map<String, dynamic> json,
+  ){
+    return Corso(
+      id: json['id'] ?? '',
+      nome: json['nome'] ?? 'Corso senza nome',
+      orario: json['orario'] ?? '--:--',
+      giorno: json['giorno'] ?? '',
+      partecipantiMassimi: json['partecipantimax'] as int,
+      partecipantiTotali: json['partecipantiTot'] as int,
+      urlImg: json['urlImg'] ?? ''
+    );
+  }
+
   
 }

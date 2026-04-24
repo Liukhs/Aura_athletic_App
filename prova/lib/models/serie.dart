@@ -13,6 +13,17 @@ class Serie{//
     this.riposoSecondi
   });
 
+  factory Serie.fromJson(
+    Map<String, dynamic> json
+  ){
+    return Serie(
+      ripetizioni: json['ripetizioni'] as int,
+      peso: (json['peso'] as num).toDouble(),
+      riposoSecondi: json['riposoSecondi'] as int,
+      completata: false
+    );
+  }
+
   Serie copy() => Serie(
     ripetizioni: ripetizioni,
     peso: peso,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
-import 'package:prova/data/mock_data.dart';
 import 'package:prova/models/corso.dart';
 /// classe di gestione dello stato globale dell'applicazione (Singleton).
 /// 

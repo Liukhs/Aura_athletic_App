@@ -3,6 +3,7 @@ import 'package:prova/data/mock_data.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/utente.dart';
+import 'package:prova/services/data_service.dart';
 
 class PaginaLogin extends StatefulWidget {
   const PaginaLogin({super.key});
@@ -17,26 +18,9 @@ class _LoginPageState extends State<PaginaLogin> {
   final _passwordController = TextEditingController();
   bool _passwordVisibile = false;
 
-  void _eseguiLogin() {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
-    bool accessed = false;
-
-    for(Utente i in utenti){
-        if(email.toUpperCase() == i.email.toUpperCase() && password == i.password){
-          accessed = true;
-          Sessione().utenteCorrente = i;
-          Sessione().utenteSalvato = i;
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const MainScreen()));
-        }else if(email.isEmpty || password.isEmpty){
-          _mostraErrore("Compila tutti i campi");
-        }
-    }
-    if(!accessed){
-        _mostraErrore("Email o password errate! Ritenta!");
-    }
-
-  }
+ /// void _eseguiLogin(){
+  ///  for(Utente u in DataService.tuttiGliUtenti)
+  ///}
 
   void _mostraErrore(String messaggio) {
     ScaffoldMessenger.of(context).showSnackBar(

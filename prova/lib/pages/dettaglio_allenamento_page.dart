@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/pages/allenamento_page.dart';
 import 'package:prova/data/sessione.dart';
+import 'package:prova/widgets/thumbnail.dart';
 import 'package:prova/widgets/video_esercizio.dart';
+import 'package:prova/models/esercizio.dart';
 
 class PaginaDettaglioAllenamento extends StatefulWidget{
   final SchedaAllenamento scheda;
@@ -15,6 +17,7 @@ class PaginaDettaglioAllenamento extends StatefulWidget{
   State<PaginaDettaglioAllenamento> createState() => _PaginaDettaglioAllenamentoState();
 }
 class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>{
+
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -77,7 +80,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                                 color: Colors.grey[800],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: es.esercizio.urlVideo != null ? VideoEsercizio(url: es.esercizio.urlVideo!) : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
+                              child: es.esercizio.urlThumb != null ? Thumbnail(esercizio: es.esercizio) : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -156,4 +159,6 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
       )
     );
   }
+
+  
 }

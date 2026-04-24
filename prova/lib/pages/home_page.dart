@@ -7,6 +7,7 @@ import 'package:prova/widgets/post_card.dart';
 import 'package:prova/widgets/widget_corso.dart';
 
 class PaginaHome extends StatelessWidget{
+  
   PaginaHome({super.key});
   final utenteLoggato = Sessione().utenteCorrente;
 

@@ -5,7 +5,6 @@ import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'dart:async';
-import 'package:prova/data/mock_data.dart';
 import 'package:prova/pages/riepilogo_page.dart';
 import 'package:prova/services/timer_service.dart';
 import 'package:prova/widgets/video_esercizio.dart';

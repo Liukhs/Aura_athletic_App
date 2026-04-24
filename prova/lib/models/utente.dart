@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/corso.dart';
@@ -38,6 +39,28 @@ class Utente{
     this.allenamenti = const [],
     this.corsiPrenotati = const []
   });
+  factory Utente.fromJson(
+    Map<String, dynamic> json,
+    List<SchedaAllenamento> tutteLeSchede,
+    List<Corso> tuttiICorsi,
+  ){
+    return Utente(
+      id: json['id'],
+      nome: json['nome'],
+      email: json['email'],
+      password: json['password'],
+      fotoUrl: json['fotoUrl'],
+      pesoAttuale: (json['pesoAttuale'] as num?)?.toDouble(),
+      altezza: json['altezza'] as int?,
+      allenamentiFatti: json['allenamentiFatti'] ?? 0,
+      allenamenti: (json['schedeIds'] as List<dynamic>?)
+      ?.map((id)=>tutteLeSchede.firstWhere((s)=>s.id==id))
+      .toList() ?? [],
+      corsiPrenotati: (json['corsiPrenotatiIds'] as List<dynamic>?)
+      ?.map((id) => tuttiICorsi.firstWhere((s)=>s.id == id))
+      .toList() ?? [],
+    );
+  }
 
   Utente copyWith({
     String? nome,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
-import 'package:prova/data/mock_data.dart';
+
 import 'package:prova/pages/dettaglio_allenamento_page.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/pages/allenamento_page.dart';
