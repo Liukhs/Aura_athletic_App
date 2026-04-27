@@ -1,17 +1,12 @@
-# prova
+# Aura Athletic App 🏋️‍♂️
 
-A new Flutter project.
+Applicazione per la gestione della palestra **Aura Athletic Club**
 
-## Getting Started
+## Funzionalità principali
+* **Visualizzazione Schede** Possibilità di visualizzare e utilizzare le schede create dal coach 
+* **Prenotazione corsi**  Gestione in tempo reale delle prenotazioni e dei posti disponibili ai corsi della palestra
+* **Comunicazioni** Possibilità di fornire qualsiasi tipo di comunicazione sulla palestra a tutti i clienti contemporaneamente
+* **Cronologia allenamenti** Con la cronologia degli allenamenti è possibile vedere tutti gli allenamenti fatti e salvati per consultarli e vedere i miglioramenti
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Architettura
+Utilizzo di un approccio **singleton** per la gestione della `Sessione` e `ListenableBuilder` per la reattività della UI.

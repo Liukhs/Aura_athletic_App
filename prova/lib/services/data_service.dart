@@ -4,6 +4,7 @@ import 'package:prova/models/esercizio.dart';
 import 'package:prova/models/corso.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
+import 'package:prova/data/sessione.dart';
 
 class DataService {
   final String url = "https://raw.githubusercontent.com/Liukhs/aura_app_db/refs/heads/main/data_aura.json";
@@ -19,16 +20,19 @@ class DataService {
         List<Esercizio> tuttiGliEsercizi = (data['esercizi'] as List)
         .map((e) => Esercizio.fromJson(e))
         .toList();
+        Sessione().tuttiGliEsercizi = tuttiGliEsercizi;
         
         print("2 Esercizi completati, inzio ricerca corsi");
         List<Corso> tuttiICorsi = (data['corsi'] as List)
         .map((e)=> Corso.fromJson(e))
         .toList();
+        Sessione().tuttiICorsi = tuttiICorsi;
 
         print("Corsi completati inizio ricerca schede allenamento");
         List<SchedaAllenamento> tutteLeSchede = (data['schede_predefinite'] as List)
         .map((e) => SchedaAllenamento.fromJson(e, tuttiGliEsercizi))
         .toList();
+        Sessione().tutteLeSchede = tutteLeSchede;
 
         print("Schede completate, inizio ricerca sugli utenti");
         List<Utente> tuttiGliUtenti = (data['utenti'] as List)

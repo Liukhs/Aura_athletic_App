@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/models/corso.dart';
+import 'package:prova/models/esercizio.dart';
 /// classe di gestione dello stato globale dell'applicazione (Singleton).
 /// 
 /// Si occupa di mantenere i dati dell'utente corrente, la sessione di allenamento attiva e le notifiche per UI [notifyListeners]
@@ -11,13 +12,24 @@ class Sessione extends ChangeNotifier { //
   Sessione._internal();
 
   Utente? utenteCorrente;
-  Utente? utenteSalvato;
+ 
 
   SchedaAllenamento? _schedaAttiva;
   DateTime? _orarioInizio;
 
   SchedaAllenamento? get schedaAttiva => _schedaAttiva;
   DateTime? get orarioInizio => _orarioInizio;
+
+  List<Corso> tuttiICorsi = [];
+  List<Esercizio> tuttiGliEsercizi = [];
+  List<SchedaAllenamento> tutteLeSchede = [];
+
+  void inizializzaDati(List<Esercizio> esercizi, List<Corso> corsi, List<SchedaAllenamento> schede){
+    tuttiICorsi = corsi;
+    tutteLeSchede =  schede;
+    tuttiGliEsercizi = esercizi;
+    notifyListeners();
+  }
 
   set schedaAttiva(SchedaAllenamento? scheda){
     _schedaAttiva = scheda;
@@ -34,7 +46,6 @@ class Sessione extends ChangeNotifier { //
   ///Inizializza ogni sessione dell'applicazione salvando l'utenteCorrente per i dati in app
   ///Salva anche utenteSalvato per permettere i prossimi accessi senza inserire email e password
   void inizializzaSessione(Utente utente){//
-    utenteSalvato = utente;
     utenteCorrente = utente;
     notifyListeners();
   }

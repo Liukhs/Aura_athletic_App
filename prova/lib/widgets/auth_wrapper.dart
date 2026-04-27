@@ -5,57 +5,45 @@ import 'package:prova/services/data_service.dart'; // Il file che abbiamo creato
 import 'package:prova/models/utente.dart';
 import 'package:prova/pages/home_page.dart';
 import 'package:prova/pages/login_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
+
+
+  Future<List<Utente>> caricaDatiEVerificaSessione() async{
+    List<Utente> utenti = await DataService().loadAllData();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? emailSalvata = prefs.getString('email_salvata');
+
+    if(emailSalvata != null){
+      try{
+        final utente = utenti.firstWhere((u) => u.email == emailSalvata);
+        Sessione().utenteCorrente = utente; 
+      }catch (e){
+
+      }
+    }
+    return utenti;
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Utente>>(
       // Chiamiamo il servizio che scarica tutto dal GitHub
-      future: DataService().loadAllData(), 
+      future: caricaDatiEVerificaSessione(), 
       builder: (context, snapshot) {
         
-        // 1. Mentre scarica i dati da GitHub mostriamo un caricamento
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+        if(snapshot.connectionState == ConnectionState.waiting){
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        // 2. Se c'è un errore (es. niente internet o URL sbagliato)
-        if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(child: Text("Errore nel caricamento dati: ${snapshot.error}")),
-          );
+        if(Sessione().utenteCorrente != null){
+          return const MainScreen();
+        } else{
+          return PaginaLogin();
         }
-
-        // 3. Dati scaricati con successo!
-        if (snapshot.hasData) {
-          final tuttiGliUtenti = snapshot.data!;
-
-          // --- LOGICA DI CONTROLLO SESSIONE ---
-          // Qui cerchiamo se esiste l'utente che ci interessa.
-          // In futuro qui userai SharedPreferences per leggere l'ID salvato.
-          String emailSalvata = "soldiluca.99@gmail.com"; 
-
-          // Cerchiamo l'utente nella lista appena scaricata
-          final utenteTrovato = tuttiGliUtenti.firstWhere(
-            (u) => u.email == emailSalvata,
-            orElse: () => Utente(id: '', nome: '', email: '', password: '', allenamentiFatti: 0), // Utente vuoto se non trovato
-          );
-
-          if (utenteTrovato.id.isNotEmpty) {
-            // Se lo abbiamo trovato, andiamo alla Home passando l'utente
-            Sessione().utenteCorrente = utenteTrovato;
-            return MainScreen();
-          } else {
-            // Altrimenti, lo mandiamo al Login
-            return const PaginaLogin();
-          }
-        }
-
-        return const PaginaLogin();
       },
     );
   }

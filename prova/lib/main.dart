@@ -3,7 +3,6 @@ import 'package:prova/pages/home_page.dart';
 import 'package:prova/pages/profile_page.dart';
 import 'package:prova/pages/schede_page.dart';
 import 'package:prova/pages/riepilogo_page.dart';
-import 'package:prova/data/mock_data.dart';
 import 'package:prova/pages/login_page.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/widgets/auth_wrapper.dart';

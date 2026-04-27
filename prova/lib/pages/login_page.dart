@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:prova/data/mock_data.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/services/data_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PaginaLogin extends StatefulWidget {
   const PaginaLogin({super.key});
@@ -17,10 +17,48 @@ class _LoginPageState extends State<PaginaLogin> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _passwordVisibile = false;
+  
 
- /// void _eseguiLogin(){
-  ///  for(Utente u in DataService.tuttiGliUtenti)
-  ///}
+  void _eseguiLogin() async{
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try{
+      List<Utente> tuttiGliUtenti = await DataService().loadAllData();
+
+      if(!mounted) return;
+      Navigator.pop(context);
+
+      final emailInserita = _emailController.text.trim();
+      final passwordInserita = _passwordController.text.trim();
+
+      Utente? utenteTrovato;
+      for(Utente u in tuttiGliUtenti){
+        if(u.email == emailInserita && u.password == passwordInserita){
+          utenteTrovato = u;
+          break;
+        }
+      }
+
+      if(utenteTrovato != null){
+        Sessione().utenteCorrente = utenteTrovato;
+
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('email_salvata', utenteTrovato.email);
+
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()),);
+      }else{
+        _mostraErrore("Credenziali non valide. Riprova");
+      }
+    }catch (e){
+      if(!mounted) return;
+      Navigator.pop(context);
+      _mostraErrore("Errore di connessione o nel database");
+    }
+  }
 
   void _mostraErrore(String messaggio) {
     ScaffoldMessenger.of(context).showSnackBar(

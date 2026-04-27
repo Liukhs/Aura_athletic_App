@@ -13,7 +13,7 @@ Widget cardCorso(BuildContext context, Corso corso){
             border: Border.all(color: Colors.orangeAccent.withOpacity(0.6)),
             image: corso.urlImg != null && corso.urlImg!.isNotEmpty 
             ? DecorationImage(
-                image: AssetImage(corso.urlImg!),
+                image: NetworkImage(corso.urlImg!),
                 fit: BoxFit.cover
             )
             : null

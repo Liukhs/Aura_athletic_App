@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:prova/data/mock_data.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/corso.dart';
 import 'package:prova/widgets/allenamento_oggi.dart';
@@ -46,7 +45,7 @@ class PaginaHome extends StatelessWidget{
                   scrollDirection: Axis.horizontal,
                   itemCount: 5,
                   itemBuilder: (context, index){
-                    return cardCorso(context, corsiSettimanali[index]);
+                    return cardCorso(context, Sessione().tuttiICorsi[index]);
                   }
                 ),
               ),
