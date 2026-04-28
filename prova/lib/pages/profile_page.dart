@@ -162,6 +162,18 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
                       return _buildCardCronologia(index);
                     },
                   ),
+              const SizedBox(height: 12),
+
+              ///utente.personalPrenotati.isEmpty
+              ///? _buildVuoto("Non hai prenotato nessuna lezione con il personal.")
+              ////:ListView.builder(
+              ///  shrinkWrap: true,
+              ///  physics: const NeverScrollableScrollPhysics(),
+              ///  itemCount: utente.personalPrenotati.length,
+              ///  itemBuilder: (context, index){
+              ///    return _buildCardPrenotazione(index);
+              ///  },
+            ///  )
           ],
         ),
       ),

@@ -37,6 +37,9 @@ dependencies:
   cupertino_icons: ^1.0.8
   video_player: ^2.11.1
   shared_preferences: ^2.5.5
+  vibration: ^3.1.8
+  audioplayers: ^6.6.0
+  flutter_ringtone_player: ^4.0.0+4
 
 dev_dependencies:
   flutter_test:
@@ -70,21 +73,7 @@ flutter:
     - assets/aura_athleticApp.png
     - assets/Aura_logo_1240.png
     - assets/aura_logo.jpg
-    - assets/corsaFunzionaleSfondo.jpg
-    - assets/exerciseGifs/00271201-Barbell-Bent-Over-Row_back.mp4
-    - assets/exerciseGifs/00601201-Barbell-Lying-Triceps-Extension-Skull-Crusher_Upper-Arms.mp4
-    - assets/exerciseGifs/01501201-Cable-Bar-Lateral-Pulldown_Back.mp4
-    - assets/exerciseGifs/01801201-Cable-Low-Seated-Row_Back.mp4
-    - assets/exerciseGifs/08141201-Triceps-Dip_Upper-Arms.mp4
-    - assets/exerciseGifs/12041201-Cable-one-arm-lat-pulldown_back.mp4
-    - assets/exerciseGifs/24381201-Cable-Pushdown-(with-rope-attachment)-(female)_Upper-Arms.mp4
-    - assets/dip_tricipiti.png
-    - assets/one_arm_pulldown.png
-    - assets/pulldown.png
-    - assets/Rematore_bilanciere.png
-    - assets/Rematore_cavo_basso.png
-    - assets/skullcrusher.png
-    - assets/triceps_pushdown.png
+ 
     
 
   # An image asset can refer to one or more resolution-specific "variants", see

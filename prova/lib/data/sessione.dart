@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prova/models/messaggio_palestra.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/models/corso.dart';
@@ -23,6 +24,7 @@ class Sessione extends ChangeNotifier { //
   List<Corso> tuttiICorsi = [];
   List<Esercizio> tuttiGliEsercizi = [];
   List<SchedaAllenamento> tutteLeSchede = [];
+  List<MessaggioPalestra> messaggiPalestra = [MessaggioPalestra(titolo: "Nuovo Corpo HIIT", corpo: "Ogni Lunedi alle 18 con Coach Giorgia!", data: "29/04/2026", icona: Icons.thunderstorm), MessaggioPalestra(titolo: "Palestra chiusa Sabato", corpo: "Saremo chiusi per via di alcuni lavori ci scusiamo", data: "02/05/2026", icona: Icons.calendar_month_outlined), MessaggioPalestra(titolo: "Compleanno della palestra", corpo: "Ed è così, il nostro primo anno insieme", data: "10/05/2026", icona: Icons.cake)];
 
   void inizializzaDati(List<Esercizio> esercizi, List<Corso> corsi, List<SchedaAllenamento> schede){
     tuttiICorsi = corsi;

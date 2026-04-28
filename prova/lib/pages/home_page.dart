@@ -4,6 +4,7 @@ import 'package:prova/models/corso.dart';
 import 'package:prova/widgets/allenamento_oggi.dart';
 import 'package:prova/widgets/post_card.dart';
 import 'package:prova/widgets/widget_corso.dart';
+import 'package:prova/widgets/messaggio_card.dart';
 
 class PaginaHome extends StatelessWidget{
   
@@ -32,9 +33,25 @@ class PaginaHome extends StatelessWidget{
                 const SizedBox(width: 10),
             ],
           ),
-          body: Column(
+          body: SingleChildScrollView( 
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text("I messaggi della palestra", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              ),
+              SizedBox(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: 3,
+                  itemBuilder: (context, index){
+                    final messaggio = Sessione().messaggiPalestra[index];
+                    return MessaggioCard(messaggio: messaggio);
+                  },
+                ),
+              ),
               Padding(
                 padding: EdgeInsets.all(16.0),
                 child: Text("I corsi di questa settimana", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
@@ -56,6 +73,7 @@ class PaginaHome extends StatelessWidget{
               CardAllenamentoOdierno(context),  
             ],
           ),
+          )
         );
       }
     );

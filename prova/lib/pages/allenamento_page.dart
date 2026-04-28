@@ -6,11 +6,14 @@ import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'dart:async';
 import 'package:prova/pages/riepilogo_page.dart';
+import 'package:prova/services/notification_service.dart';
 import 'package:prova/services/timer_service.dart';
+import 'package:prova/widgets/thumbnail.dart';
 import 'package:prova/widgets/video_esercizio.dart';
 
 class PaginaAllenamento extends StatefulWidget {
   final SchedaAllenamento scheda;
+  //final TextEditingController _controllerScheda = TextEditingController();
 
   const PaginaAllenamento({
     super.key,
@@ -62,6 +65,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
         });
       } else {
         timer.cancel();
+        NotificationService.fineRecupero();
         setState(() {
           _mostraRecupero = false;
         });
@@ -171,7 +175,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                                   color: Colors.grey[800],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: widget.scheda.esercizi[index].esercizio.urlVideo != null ? VideoEsercizio(url: widget.scheda.esercizi[index].esercizio.urlVideo!) : const Icon(Icons.fitness_center, color: Colors.orangeAccent) 
+                                child: widget.scheda.esercizi[index].esercizio.urlThumb != null ? Thumbnail(esercizio: widget.scheda.esercizi[index].esercizio) : const Icon(Icons.fitness_center, color: Colors.orangeAccent) 
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -184,6 +188,15 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                                 ),
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 15),
+                          TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Aggiungi delle note...',
+                              hintText: 'Note...',
+                              border: OutlineInputBorder()
+                            ),
+                            //controller: widget._controllerScheda,
                           ),
                           const SizedBox(height: 15),
                           // Intestazione Tabella
