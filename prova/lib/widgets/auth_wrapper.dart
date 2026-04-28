@@ -22,7 +22,7 @@ class AuthWrapper extends StatelessWidget {
         final utente = utenti.firstWhere((u) => u.email == emailSalvata);
         Sessione().utenteCorrente = utente; 
       }catch (e){
-
+        print("[ERRORE] $e");
       }
     }
     return utenti;
