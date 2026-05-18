@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prova/data/database_helper.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/utente.dart';
@@ -45,6 +46,10 @@ class _LoginPageState extends State<PaginaLogin> {
 
       if(utenteTrovato != null){
         Sessione().utenteCorrente = utenteTrovato;
+        
+        for(var scheda in utenteTrovato.allenamenti){
+          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda);
+        }
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('email_salvata', utenteTrovato.email);

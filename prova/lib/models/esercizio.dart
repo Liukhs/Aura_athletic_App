@@ -8,15 +8,18 @@ class Esercizio{
   final GruppoMuscolare categoria;
   final String? urlVideo;
   final String? urlThumb;
+  final String? note;
   Esercizio({
     required this.nome,
     required this.id,
     required this.istruzioni,
     required this.categoria,
     this.urlVideo,
-    this.urlThumb
+    this.urlThumb,
+    this.note
   });
 
+  
   factory Esercizio.fromJson(
     Map<String, dynamic> json,
   ){

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
+import 'package:prova/data/database_helper.dart';
 import 'package:prova/services/data_service.dart'; // Il file che abbiamo creato
 import 'package:prova/models/utente.dart';
-import 'package:prova/pages/home_page.dart';
 import 'package:prova/pages/login_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +20,10 @@ class AuthWrapper extends StatelessWidget {
     if(emailSalvata != null){
       try{
         final utente = utenti.firstWhere((u) => u.email == emailSalvata);
-        Sessione().utenteCorrente = utente; 
+        Sessione().utenteCorrente = utente;
+        for (var scheda in utente.allenamenti) {
+          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda);
+        }
       }catch (e){
         print("[ERRORE] $e");
       }

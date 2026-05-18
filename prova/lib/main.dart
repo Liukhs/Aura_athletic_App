@@ -54,7 +54,9 @@ class _MainScreenState extends State<MainScreen> {
 
     _pagine = [
       PaginaHome(),
-      const PaginaScheda(),
+      PaginaScheda(
+        tuttiGliEsercizi: Sessione().tuttiGliEsercizi
+      ),
       const PaginaRiepilogo(),
       PaginaProfilo()
     ];

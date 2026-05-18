@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prova/data/database_helper.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/allenamento_completato.dart';
@@ -72,12 +73,30 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
       }
     });
   }
+  void _stoppaRecupero(){
+    _secondiRimanenti = 0;
+    _timerRecupero?.cancel();
+  }
   String _formattaDurata(Duration d){
     String dueCifre(int n) => n.toString().padLeft(2, '0');
+    final ore = dueCifre(d.inHours.remainder(60));
     final minuti = dueCifre(d.inMinutes.remainder(60));
     final secondi = dueCifre(d.inSeconds.remainder(60));
-    return "$minuti:$secondi";
+    return "$ore:$minuti:$secondi";
   }
+  void _calcolaVolume(){
+    setState(() {
+      volume = 0;
+      widget.scheda.esercizi.forEach((esercizio) {
+        for(int i = 0; i < esercizio.serie.length; i++){
+          if(esercizio.serie[i].completata){
+            volume = volume + ((esercizio.serie[i].peso ?? 0)*(esercizio.serie[i].ripetizioni ?? 0.0)); 
+          }
+        }
+      });
+    });
+  }
+  
 
   @override
   void dispose() {
@@ -94,6 +113,8 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
     }
     utente.cronologiaAllenamenti.add(allenamento);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -113,11 +134,12 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.scheda.titolo)
+              Text("Allenamento")
             ],
           ),
           const Spacer(),
           ElevatedButton(onPressed: (){salvaAllenamento(AllenamentoCompletato(id: "01", nome: widget.scheda.titolo, tempoMinuti: _tempoTotale, volume: volume, bpm: 120));
+          DatabaseHelper.instance.salvaAllenamentoCompletato(titolo: widget.scheda.titolo, id: widget.scheda.id, durata: _tempoTotale, volume: volume);
           Sessione().schedaAttiva = null;
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen(initialIndex: 2)),(route)=>false);}, 
           style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)))
@@ -133,9 +155,23 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                 alignment: Alignment.centerLeft,
                 child: Row(
                   children: [
-                    Text("Durata: $_tempoTotale", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)),
-                    const SizedBox(width: 12),
-                    Text("Volume: ${volume}", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent))
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text("Durata:", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+                        Text("${_tempoTotale}", style: const TextStyle(fontSize: 15, color: Colors.blue)),
+                      ],
+                    ),
+                    const SizedBox(width: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text("Volume:", style: const TextStyle(fontSize: 12, color: Colors.orangeAccent)),
+                        Text("${volume} Kg", style: const TextStyle(fontSize: 15, color: Colors.blue))
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -239,6 +275,10 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                         Text("RECUPERO...", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
                       ],
                     ),
+                    const SizedBox(width: 40),
+                    ElevatedButton(onPressed: ()=>{_stoppaRecupero()},
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                    child: Text("Salta")),
                     Text(
                       "${_secondiRimanenti}s",
                       style: const TextStyle(
@@ -309,7 +349,8 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                 });
                 if (es.serie[index].completata) {
                   _avviaRecupero(es.serie[index].riposoSecondi!);
-                  volume = volume + ((es.serie[index].peso ?? 0.0)*(es.serie[index].ripetizioni ?? 0.0));
+                  //volume = volume + ((es.serie[index].peso ?? 0.0)*(es.serie[index].ripetizioni ?? 0.0))
+                  _calcolaVolume();
                 } else {
                   _timerRecupero?.cancel();
                   setState(() => _mostraRecupero = false);

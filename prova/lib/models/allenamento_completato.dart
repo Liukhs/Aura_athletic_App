@@ -12,4 +12,13 @@ class AllenamentoCompletato {
     required this.volume,
     required this.bpm
   });
+
+  factory AllenamentoCompletato.fromMap(Map<String, dynamic> map){
+    return AllenamentoCompletato(id: map['id'] as String,
+      nome: map['titolo'] as String,
+      tempoMinuti: map['durata_secondi'] as String,
+      volume: map['volume_totale'] as double,
+      bpm: 120
+    );
+  }
 }

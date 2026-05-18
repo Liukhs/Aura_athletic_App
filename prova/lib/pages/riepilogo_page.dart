@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:prova/data/database_helper.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
@@ -14,7 +15,8 @@ class PaginaRiepilogo extends StatefulWidget{
 
 class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
 
-  List<AllenamentoCompletato> cronologia = [];
+  
+  late Future<List<AllenamentoCompletato>> _futureCronologia;
 
   @override
   void initState(){
@@ -23,13 +25,9 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
   }
 
   void _caricaCronologia(){
-    final utente = Sessione().utenteCorrente;
-
-    if(utente != null){
-      setState(() {
-        cronologia = utente.cronologiaAllenamenti.reversed.toList();
-      });
-    }
+    setState(() {
+      _futureCronologia = DatabaseHelper.instance.ottieniCronologiaLocale();
+    });
   }
   @override
   Widget build(BuildContext context){
@@ -50,13 +48,25 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
             const SizedBox(width: 10),
         ],
       ),
-      body: cronologia.isEmpty ? _buildVuoto() : ListView.builder(
-        itemCount: cronologia.length,
-        
-        itemBuilder: (context, index){
-          final allenamento = cronologia[index];
-          return _buildCardAllenamento(allenamento);
-        },
+      body: FutureBuilder<List<AllenamentoCompletato>>(
+        future: _futureCronologia,
+        builder: (context, snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(color: Colors.orangeAccent));
+          }
+          if(!snapshot.hasData || snapshot.data!.isEmpty){
+            return _buildVuoto();
+          }
+          final cronologia = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: cronologia.length,
+            itemBuilder: (context, index){
+              final allenamento = cronologia[index];
+              return _buildCardAllenamento(allenamento);
+            }
+          );
+        }
       )
     );
   }

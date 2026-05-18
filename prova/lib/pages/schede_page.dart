@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:prova/data/database_helper.dart';
+import 'package:prova/models/esercizio.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 
 import 'package:prova/pages/dettaglio_allenamento_page.dart';
@@ -6,14 +8,30 @@ import 'package:prova/data/sessione.dart';
 import 'package:prova/pages/allenamento_page.dart';
 
 class PaginaScheda extends StatefulWidget {
+
+  final List<Esercizio> tuttiGliEsercizi;
   
-  const PaginaScheda({super.key});
+  const PaginaScheda({super.key, required this.tuttiGliEsercizi});
 
   @override
   State<PaginaScheda> createState() => _paginaSchedaState();
 }
 
 class _paginaSchedaState extends State<PaginaScheda>{
+
+  late Future<List<SchedaAllenamento>> _futureSchede;
+
+  @override
+  void initState(){
+    super.initState();
+    _ricaricaSchedeLocalmente();
+  }
+
+  void _ricaricaSchedeLocalmente(){
+    setState(() {
+      _futureSchede = DatabaseHelper.instance.ottieniSchedeComplete(widget.tuttiGliEsercizi);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +47,30 @@ class _paginaSchedaState extends State<PaginaScheda>{
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: ListView.builder(
-        itemCount: mieSchede.length,
-        itemBuilder: (context, index) {
-  final schedaSelezionata = mieSchede[index];
+      body: FutureBuilder<List<SchedaAllenamento>>(
+        future: _futureSchede,
+        builder: (context, snapshot) {
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return const Center(child: CircularProgressIndicator(color: Colors.orangeAccent,));
+          }
+          if(snapshot.hasError){
+            return Center(child: Text("Errore Database: ${snapshot.error}", style: const TextStyle(color: Colors.red)));
+          }
 
-  return Padding(
+          final mieSchede = snapshot.data ?? [];
+          if(mieSchede.isEmpty){
+            return const Center(
+              child: Text(
+                "Nessuna scheda salvata localmente.",
+                style: TextStyle(color: Colors.grey, fontSize: 16),
+              ),
+            );
+          }
+          return ListView.builder(
+            itemCount: mieSchede.length,
+            itemBuilder: (context, index){
+              final schedaSelezionata = mieSchede[index];
+              return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
     child: InkWell(
       onTap: () {
@@ -80,7 +116,7 @@ class _paginaSchedaState extends State<PaginaScheda>{
                   ),
                 ).then((_){
                   if(mounted){
-                    setState((){});
+                    _ricaricaSchedeLocalmente();
                   }
                 });
               },
@@ -90,6 +126,11 @@ class _paginaSchedaState extends State<PaginaScheda>{
       ),
     ),
   );
+
+            }
+          );
+
+  
 },
       ),
     );

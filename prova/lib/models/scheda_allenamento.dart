@@ -26,5 +26,19 @@ class SchedaAllenamento{
     );
   }
 
+  factory SchedaAllenamento.fromDbMap(Map<String, dynamic> dbMap, List<EsercizioProgrammato> eserciziScheda){
+    return SchedaAllenamento(
+      id: dbMap['id'] as String,
+      titolo: dbMap['titolo'] as String,
+      esercizi: eserciziScheda
+    );
+  }
+  Map<String, dynamic> toMap(){
+    return{
+      'id': id,
+      'titolo': titolo,
+    };
+  }
+
   SchedaAllenamento copy() => SchedaAllenamento(id: id, titolo: titolo, esercizi: esercizi.map((e)=> e.copy()).toList());
 }
