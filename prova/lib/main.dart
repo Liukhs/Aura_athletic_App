@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:prova/pages/home_page.dart';
 import 'package:prova/pages/profile_page.dart';
@@ -140,11 +142,19 @@ class _MainScreenState extends State<MainScreen> {
                 _currentIndex = index;
               });
             },
-            items: const [
+            items: [
               BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
               BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Scheda'),
               BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: 'Riepilogo'),
-              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profilo'),
+              BottomNavigationBarItem(
+                icon:(Sessione().utenteCorrente?.fotoUrl != null && Sessione().utenteCorrente!.fotoUrl!.isNotEmpty)
+                ? CircleAvatar(
+                  radius: 12,
+                  backgroundImage: FileImage(File(Sessione().utenteCorrente!.fotoUrl!))
+                )
+                : Icon(Icons.person),
+                label: 'Profilo'
+                ),
             ],
           ),
         );

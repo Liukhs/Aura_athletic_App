@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:prova/data/database_helper.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/utente.dart';
+import 'package:prova/models/allenamento_completato.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
 class PaginaProfilo extends StatefulWidget {
   const PaginaProfilo({super.key});
@@ -12,12 +18,48 @@ class PaginaProfilo extends StatefulWidget {
 class _PaginaProfiloState extends State<PaginaProfilo> {
   // Recuperiamo l'utente dalla sessione
   late Utente utente;
+  late Future<List<AllenamentoCompletato>> _futureCronologia;
 
   @override
   void initState() {
     super.initState();
     // Inizializziamo l'utente all'avvio
     utente = Sessione().utenteCorrente!;
+    _futureCronologia = DatabaseHelper.instance.ottieniCronologiaLocale();
+  }
+
+  Future<void> _aggiornaImmagineProfilo() async{
+    final picker = ImagePicker();
+
+    final XFile? immagineScelta = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 500,
+      imageQuality: 80,
+    );
+    if(immagineScelta == null) return;
+
+    try{
+      final directory = await getApplicationDocumentsDirectory();
+
+      final nomeFile = "profilo_${utente.id}${p.extension(immagineScelta.path)}";
+      final percorsoFinale = p.join(directory.path, nomeFile);
+
+      final File nuovaImmagine = await File(immagineScelta.path).copy(percorsoFinale);
+
+      await DatabaseHelper.instance.aggiornaFotoUtente(utente.id, nuovaImmagine.path);
+
+      setState(() {
+        utente.fotoUrl = nuovaImmagine.path;
+        Sessione().utenteCorrente?.fotoUrl = nuovaImmagine.path;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Foto profilo aggiornata!")),
+      );
+    }catch(e){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Errore nel salvataggio della foto: $e")),
+      );
+    }
   }
 
   // Metodo per aggiornare la UI se serve (es. dopo un allenamento)
@@ -25,6 +67,34 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
     setState(() {
       utente = Sessione().utenteCorrente!;
     });
+  }
+  void _mostraOpzioniFoto(){
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context){
+        return Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_camera, color: Colors.orangeAccent),
+                title: const Text("Cambia immagine", style: TextStyle(color: Colors.white)),
+                onTap: (){
+                  Navigator.pop(context);
+                  _aggiornaImmagineProfilo();
+                  print("avvio picker di immagini");
+                },
+              )
+            ],
+          ),
+        );
+      }
+    );
   }
 
   @override
@@ -42,7 +112,7 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.orangeAccent),
-            onPressed: () => print("Impostazioni"),
+            onPressed: () => DatabaseHelper.instance.stampaTuttoIlDatabase(),
           ),
         ],
       ),
@@ -54,15 +124,22 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
             // --- HEADER: FOTO + INFO UTENTE ---
             Row(
               children: [
-                CircleAvatar(
+                InkWell(
+                  borderRadius: BorderRadius.circular(40),
+                  onTap: (){
+                    _mostraOpzioniFoto();
+                    print("Hai cliccato l'immagine di profilo");
+                  },
+                  child: CircleAvatar(
                   radius: 40,
                   backgroundColor: Colors.orangeAccent.withOpacity(0.2),
                   backgroundImage: (utente.fotoUrl != null && utente.fotoUrl!.isNotEmpty)
-                      ? NetworkImage(utente.fotoUrl!)
+                      ? FileImage(File(utente.fotoUrl!)) as ImageProvider
                       : null,
                   child: (utente.fotoUrl == null || utente.fotoUrl!.isEmpty)
                       ? const Icon(Icons.person, size: 40, color: Colors.orangeAccent)
                       : null,
+                ),
                 ),
                 const SizedBox(width: 20),
                 Column(
@@ -150,20 +227,28 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            
-            // CONTROLLO LISTA VUOTA
-            utente.cronologiaAllenamenti.isEmpty 
-                ? _buildVuoto("Non hai ancora completato allenamenti.") 
-                : ListView.builder(
-                    shrinkWrap: true, // QUESTO SERVE PER NON FAR CRASHARE TUTTO
-                    physics: const NeverScrollableScrollPhysics(), // DISABILITA LO SCROLL INTERNO
-                    itemCount: utente.cronologiaAllenamenti.length,
-                    itemBuilder: (context, index) {
-                      return _buildCardCronologia(index);
-                    },
-                  ),
-              const SizedBox(height: 12),
-
+            FutureBuilder<List<AllenamentoCompletato>>(
+              future: _futureCronologia,
+              builder: (context, snapshot){
+                if(snapshot.connectionState == ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator(color: Colors.orangeAccent));
+                }
+                if(!snapshot.hasData || snapshot.data!.isEmpty){
+                  return _buildVuoto("Non hai ancora completato allenamenti");
+                }
+                final cronologia = snapshot.data!;
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: cronologia.length,
+                  itemBuilder: (context, index){
+                    final allenamento = cronologia[index];
+                    return _buildCardCronologia(allenamento);
+                  },
+                );
+              },
+            ),
+              const SizedBox(height: 12)
               ///utente.personalPrenotati.isEmpty
               ///? _buildVuoto("Non hai prenotato nessuna lezione con il personal.")
               ////:ListView.builder(
@@ -203,16 +288,16 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
     );
   }
 
-  Widget _buildCardCronologia(int index) {
-    final sessione = utente.cronologiaAllenamenti[index];
+  Widget _buildCardCronologia(AllenamentoCompletato allenamento) {
+    
     return Card(
       color: const Color(0xFF1E1E1E),
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         leading: const Icon(Icons.fitness_center, color: Colors.orangeAccent),
-        title: Text(sessione.nome),
-        subtitle: Text("Vol: ${sessione.volume} - Tempo: ${sessione.tempoMinuti} - BPM: ${sessione.bpm}"),
+        title: Text(allenamento.nome),
+        subtitle: Text("Vol: ${allenamento.volume} - Tempo: ${allenamento.tempoMinuti} - BPM: ${allenamento.bpm}"),
       ),
     );
   }

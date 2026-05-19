@@ -1,6 +1,8 @@
+import 'package:prova/data/sessione.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
+import 'package:prova/models/utente.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:prova/models/esercizio.dart';
@@ -71,11 +73,14 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE sessioni_allenamento (
       id TEXT PRIMARY KEY,
+      utente_id TEXT,
       scheda_id TEXT,
       data TEXT,
       titolo_scheda TEXT,
       durata_secondi TEXT,
-      volume_totale REAL
+      volume_totale REAL,
+      bpm INTEGER,
+      FOREIGN KEY (utente_id) REFERENCES user (id) ON DELETE CASCADE
     )
   ''');
 
@@ -88,6 +93,19 @@ class DatabaseHelper {
       peso REAL,
       ripetizioni INTEGER,
       FOREIGN KEY (sessione_id) REFERENCES sessioni_allenamento (id) ON DELETE CASCADE
+    )
+  ''');
+
+    await db.execute('''
+    CREATE TABLE user (
+      id TEXT PRIMARY KEY,
+      nome TEXT,
+      email TEXT NOT NULL,
+      password TEXT NOT NULL,
+      foto_path TEXT,
+      peso REAL,
+      altezza INTEGER,
+      allenamenti_fatti INTEGER DEFAULT 0
     )
   ''');
   }
@@ -115,17 +133,55 @@ class DatabaseHelper {
     required String id,
     required String durata,
     required double volume,
+    required int bpm
   }) async{
     final db = await instance.database;
 
     await db.insert('sessioni_allenamento', {
       'id': DateTime.now().millisecondsSinceEpoch.toString(),
       'scheda_id': id,
+      'utente_id': Sessione().utenteCorrente!.id,
       'titolo_scheda' : titolo,
       'data': DateTime.now().toIso8601String(),
       'durata_secondi': durata,
       'volume_totale': volume,
+      'bpm': bpm,
     });
+  }
+
+  Future<void> salvaUtenteCorrente({
+    required String id,
+    required String nome,
+    required String email,
+    required String password,
+    String? fotoUrl,
+    required double peso,
+    required int altezza,
+    int? allenamenti_fatti
+  }) async{
+    final db = await instance.database;
+
+    await db.insert('user', {
+      'id': id,
+      'nome': nome,
+      'email': email,
+      'password': password,
+      'foto_path': fotoUrl ?? "",
+      'peso': peso,
+      'altezza': altezza,
+      'allenamenti_fatti': allenamenti_fatti ?? 0
+    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+
+  Future<void> aggiornaFotoUtente(String id, String path) async{
+    final db = await instance.database;
+
+    await db.update('user', {
+      'foto_path': path,
+    },
+    where: 'id = ?',
+    whereArgs: [id]
+    );
   }
 
   Future<List<SchedaAllenamento>> ottieniSchedeComplete(List<Esercizio> tuttiGliEsercizi) async{
@@ -167,5 +223,43 @@ class DatabaseHelper {
     return List.generate(maps.length, (i){
       return AllenamentoCompletato.fromMap(maps[i]);
     });
+  }
+
+  Future<void> stampaTuttoIlDatabase() async {
+  try {
+    final db = await instance.database;
+    
+    // Controlliamo che tabelle esistono davvero nel file .db
+    var tables = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'");
+    print("--- TABELLE PRESENTI NEL DB ---");
+    print(tables);
+
+    // Stampiamo il contenuto della tabella user
+    var utenti = await db.query('user');
+    print("--- CONTENUTO TABELLA USER ---");
+    print(utenti);
+
+    // Stampiamo gli allenamenti
+    var sessioni = await db.query('sessioni_allenamento');
+    print("--- CONTENUTO TABELLA SESSIONI ---");
+    print(sessioni);
+    
+  } catch (e) {
+    print("ERRORE DURANTE IL DEBUG DEL DB: $e");
+  }
+  }
+  Future<Utente?> getUtenteById(String id) async{
+    final db = await instance.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'user',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+    if(maps.isNotEmpty){
+      return Utente.fromMap(maps.first);
+    }
+
+    return null;
   }
 }

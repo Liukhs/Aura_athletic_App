@@ -16,7 +16,7 @@ class Utente{
   ///[password] - Password di accesso all'account
   final String password;
   ///[fotoUrl] - url della foto del profilo dell'account
-  final String? fotoUrl;
+  String? fotoUrl;
   ///[pesoAttuale] - [altezza] Parametri del cliente
   final double? pesoAttuale;
   final int? altezza;
@@ -84,5 +84,19 @@ class Utente{
       allenamenti: allenamenti ?? this.allenamenti,
     );
   }
+
+  factory Utente.fromMap(Map<String, dynamic> map){
+    return Utente(
+      id: map['id'] as String,
+      nome: map['nome'] as String,
+      email: map['email'] as String,
+      password: map['password'] as String,
+      fotoUrl: map['foto_path'] as String,
+      pesoAttuale: map['peso'] as double,
+      altezza: map['altezza'] as int,
+      allenamentiFatti: map['allenamenti_fatti'] as int
+    );
+  }
+  
   
 }

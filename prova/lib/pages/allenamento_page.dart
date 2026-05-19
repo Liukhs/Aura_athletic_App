@@ -76,6 +76,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
   void _stoppaRecupero(){
     _secondiRimanenti = 0;
     _timerRecupero?.cancel();
+    _mostraRecupero = false;
   }
   String _formattaDurata(Duration d){
     String dueCifre(int n) => n.toString().padLeft(2, '0');
@@ -105,13 +106,14 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
     super.dispose();
   }
 
-  void salvaAllenamento(AllenamentoCompletato allenamento){
-    final utente = Sessione().utenteCorrente;
-
-    if(utente == null){
-      return;
-    }
-    utente.cronologiaAllenamenti.add(allenamento);
+  void salvaAllenamento() async{
+    await  DatabaseHelper.instance.salvaAllenamentoCompletato(
+      titolo: widget.scheda.titolo,
+      id: widget.scheda.id,
+      durata: _tempoTotale,
+      volume: volume,
+      bpm: 120
+    );
   }
 
 
@@ -138,8 +140,9 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
             ],
           ),
           const Spacer(),
-          ElevatedButton(onPressed: (){salvaAllenamento(AllenamentoCompletato(id: "01", nome: widget.scheda.titolo, tempoMinuti: _tempoTotale, volume: volume, bpm: 120));
-          DatabaseHelper.instance.salvaAllenamentoCompletato(titolo: widget.scheda.titolo, id: widget.scheda.id, durata: _tempoTotale, volume: volume);
+          ElevatedButton(onPressed: () {salvaAllenamento();
+          //DatabaseHelper.instance.salvaAllenamentoCompletato(titolo: widget.scheda.titolo, id: widget.scheda.id, durata: _tempoTotale, volume: volume, bpm: 120);
+          DatabaseHelper.instance.stampaTuttoIlDatabase();
           Sessione().schedaAttiva = null;
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen(initialIndex: 2)),(route)=>false);}, 
           style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)))

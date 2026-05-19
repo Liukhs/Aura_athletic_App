@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:prova/data/database_helper.dart';
 import 'package:prova/models/allenamento_completato.dart';
@@ -87,17 +89,23 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
   Widget _buildCardAllenamento(AllenamentoCompletato sessione){
     final utente = Sessione().utenteCorrente;
     return Card(
+      
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       color: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Column(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(15),
+        onTap: (){
+          print("Hai cliccato la card");
+        },
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           //HEADER
           ListTile(
             leading: CircleAvatar(
               backgroundColor: Colors.orangeAccent,
-              backgroundImage: (utente?.fotoUrl != null && utente!.fotoUrl!.isNotEmpty) ? NetworkImage(utente.fotoUrl!) : null,
+              backgroundImage: (utente?.fotoUrl != null && utente!.fotoUrl!.isNotEmpty) ? FileImage(File(utente.fotoUrl!)) as ImageProvider : null,
               child: (utente?.fotoUrl == null || utente!.fotoUrl!.isEmpty) ? const Icon(Icons.person, color: Colors.black,): null,
               ),
               title: Text(Sessione().utenteCorrente!.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -164,6 +172,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
               ],
             )
         ],
+      ),
       ),
     );
   }

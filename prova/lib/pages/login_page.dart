@@ -46,7 +46,8 @@ class _LoginPageState extends State<PaginaLogin> {
 
       if(utenteTrovato != null){
         Sessione().utenteCorrente = utenteTrovato;
-        
+        await DatabaseHelper.instance.salvaUtenteCorrente(id: utenteTrovato.id, nome: utenteTrovato.nome, email: utenteTrovato.email, password: utenteTrovato.password, peso: utenteTrovato.pesoAttuale ?? 0, altezza: utenteTrovato.altezza ?? 0, allenamenti_fatti: utenteTrovato.allenamentiFatti, fotoUrl: utenteTrovato.fotoUrl).catchError((e) => print("errore salvataggio: $e"));
+        await DatabaseHelper.instance.stampaTuttoIlDatabase();
         for(var scheda in utenteTrovato.allenamenti){
           await DatabaseHelper.instance.inserisciSchedaCompleta(scheda);
         }
