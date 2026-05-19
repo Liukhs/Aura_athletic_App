@@ -148,6 +148,39 @@ class DatabaseHelper {
       'bpm': bpm,
     });
   }
+  Future<void> salvaAllenamenti({
+    required String titolo,
+    required String id,
+    required String durata,
+    required double volume,
+    required int bpm,
+    required int nAllenamenti
+  }) async{
+    final db = await instance.database;
+
+    await db.transaction((txn) async{
+      await txn.insert('sessioni_allenamento',{
+        'id': DateTime.now().millisecondsSinceEpoch.toString(),
+        'scheda_id': id,
+        'utente_id': Sessione().utenteCorrente!.id,
+        'titolo_scheda' : titolo,
+        'data': DateTime.now().toIso8601String(),
+        'durata_secondi': durata,
+        'volume_totale': volume,
+        'bpm': bpm,
+      });
+
+      await txn.update(
+        'user',
+        {
+          'allenamenti_fatti': nAllenamenti,
+        },
+        //Clausola where usata per identificare quale utente aggiornare, in base all'id univoco
+        where: 'id = ?',
+        whereArgs: [Sessione().utenteCorrente!.id]
+      );
+    });
+  }
 
   Future<void> salvaUtenteCorrente({
     required String id,
@@ -171,6 +204,19 @@ class DatabaseHelper {
       'altezza': altezza,
       'allenamenti_fatti': allenamenti_fatti ?? 0
     }, conflictAlgorithm: ConflictAlgorithm.ignore);
+  }
+  Future<void> aggiornaAllenamentiFatti(String id, int nAllenamenti) async{
+    final db = await instance.database;
+
+    await db.update(
+      'user',
+      {
+        'allenamenti_fatti': nAllenamenti,
+      },
+      //Clausola where usata per identificare quale utente aggiornare, in base all'id univoco
+      where: 'id = ?',
+      whereArgs: [id]
+    );
   }
 
   Future<void> aggiornaFotoUtente(String id, String path) async{

@@ -128,7 +128,6 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
                   borderRadius: BorderRadius.circular(40),
                   onTap: (){
                     _mostraOpzioniFoto();
-                    print("Hai cliccato l'immagine di profilo");
                   },
                   child: CircleAvatar(
                   radius: 40,

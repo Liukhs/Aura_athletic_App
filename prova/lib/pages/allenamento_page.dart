@@ -107,12 +107,18 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
   }
 
   void salvaAllenamento() async{
+    Sessione().utenteCorrente!.allenamentiFatti += 1;
+    final db = await DatabaseHelper.instance; 
     await  DatabaseHelper.instance.salvaAllenamentoCompletato(
       titolo: widget.scheda.titolo,
       id: widget.scheda.id,
       durata: _tempoTotale,
       volume: volume,
       bpm: 120
+    );
+    await DatabaseHelper.instance.aggiornaAllenamentiFatti(
+      Sessione().utenteCorrente!.id,
+      Sessione().utenteCorrente!.allenamentiFatti
     );
   }
 
@@ -144,6 +150,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
           //DatabaseHelper.instance.salvaAllenamentoCompletato(titolo: widget.scheda.titolo, id: widget.scheda.id, durata: _tempoTotale, volume: volume, bpm: 120);
           DatabaseHelper.instance.stampaTuttoIlDatabase();
           Sessione().schedaAttiva = null;
+          Sessione().utenteCorrente!.allenamentiFatti += 1; 
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen(initialIndex: 2)),(route)=>false);}, 
           style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)))
           ]

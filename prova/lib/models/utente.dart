@@ -21,7 +21,7 @@ class Utente{
   final double? pesoAttuale;
   final int? altezza;
   ///[allenamentiFatti] - [allenamenti] - [cronologiaAllenamenti] - [corsiPrenotati] - liste di contenimento di schede, allenamenti e corsi dell'utente
-  final int allenamentiFatti;
+  int allenamentiFatti;
   final List<SchedaAllenamento> allenamenti;
   List<AllenamentoCompletato> cronologiaAllenamenti = [];
   List<Corso> corsiPrenotati = [];
