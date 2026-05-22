@@ -7,6 +7,11 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:fl_chart/fl_chart.dart';
+import 'package:prova/pages/calendario_page.dart';
+import 'package:prova/pages/esercizi_page.dart';
+import 'package:prova/pages/misurazioni_page.dart';
+import 'package:prova/pages/statistiche_page.dart';
 
 class PaginaProfilo extends StatefulWidget {
   const PaginaProfilo({super.key});
@@ -33,8 +38,8 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
 
     final XFile? immagineScelta = await picker.pickImage(
       source: ImageSource.gallery,
-      maxWidth: 500,
-      imageQuality: 80,
+      maxWidth: 1800,
+      imageQuality: 90,
     );
     if(immagineScelta == null) return;
 
@@ -89,6 +94,14 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
                   _aggiornaImmagineProfilo();
                   print("avvio picker di immagini");
                 },
+              ),
+              ListTile(
+                leading: const Icon(Icons.remove_red_eye_outlined, color: Colors.orangeAccent),
+                title: const Text("Visualizza immagine", style: TextStyle(color: Colors.white)),
+                onTap:(){
+                  Navigator.pop(context);
+                  _mostraFotoProfilo(context, utente.fotoUrl!);
+                }
               )
             ],
           ),
@@ -96,6 +109,28 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
       }
     );
   }
+  void _mostraFotoProfilo(BuildContext context, String urlImmagine){
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        clipBehavior: Clip.antiAlias,
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image:DecorationImage(
+              image: FileImage(File(urlImmagine)),
+              fit: BoxFit.cover
+            ) 
+          )
+        )
+        ),
+      );
+
+  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -194,10 +229,10 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
               mainAxisSpacing: 10,
               childAspectRatio: 4.0,
               children: [
-                _buildPannelloButton("Statistiche", Icons.auto_graph),
-                _buildPannelloButton("Esercizi", Icons.fitness_center_sharp),
-                _buildPannelloButton("Misurazioni", Icons.boy_rounded),
-                _buildPannelloButton("Calendario", Icons.calendar_month_rounded),
+                _buildPannelloButton(context, "Statistiche", Icons.auto_graph, PaginaStatistiche()),
+                _buildPannelloButton(context, "Esercizi", Icons.fitness_center_sharp, PaginaEsercizi()),
+                _buildPannelloButton(context, "Misurazioni", Icons.boy_rounded, PaginaMisurazioni()),
+                _buildPannelloButton(context, "Calendario", Icons.calendar_month_rounded, PaginaCalendario()),
               ],
             ),
 
@@ -266,14 +301,17 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
 
   // --- I TUOI METODI HELPER (SPOSTATI DENTRO LO STATE) ---
 
-  Widget _buildPannelloButton(String label, IconData icon) {
+  Widget _buildPannelloButton(BuildContext context, String label, IconData icon, Widget destinazione) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF1E1E1E),
         borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
-        onTap: () => print("Cliccato $label"),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => destinazione)
+        ),
         borderRadius: BorderRadius.circular(12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
