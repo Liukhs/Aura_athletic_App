@@ -89,7 +89,6 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
   Widget _buildCardAllenamento(AllenamentoCompletato sessione){
     final utente = Sessione().utenteCorrente;
     return Card(
-      
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       color: const Color(0xFF1E1E1E),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
@@ -110,6 +109,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
               ),
               title: Text(Sessione().utenteCorrente!.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
               subtitle: const Text('Disponibile ora'),
+              trailing: Text("${sessione.data.day}/${sessione.data.month}/${sessione.data.year}", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -166,9 +166,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
             //FOOTER
             Row(
               children: [
-                IconButton(icon: const Icon(Icons.favorite_border), onPressed: () {}),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.chat_bubble_outline)),
-                IconButton(onPressed: () {}, icon: const Icon(Icons.share_outlined))
+                
               ],
             )
         ],

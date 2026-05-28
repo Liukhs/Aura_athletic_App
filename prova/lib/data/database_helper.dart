@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio_programmato.dart';
@@ -127,48 +129,32 @@ class DatabaseHelper {
       }
     });
   }
-
-  Future<void> salvaAllenamentoCompletato({
-    required String titolo,
-    required String id,
-    required String durata,
-    required double volume,
-    required int bpm
-  }) async{
+  Future<int> contaAllenamenti() async{
     final db = await instance.database;
 
-    await db.insert('sessioni_allenamento', {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'scheda_id': id,
-      'utente_id': Sessione().utenteCorrente!.id,
-      'titolo_scheda' : titolo,
-      'data': DateTime.now().toIso8601String(),
-      'durata_secondi': durata,
-      'volume_totale': volume,
-      'bpm': bpm,
-    });
+    final result = await db.rawQuery('SELECT COUNT(*) FROM sessioni_allenamento');
+
+    return Sqflite.firstIntValue(result) ?? 0;
   }
-  Future<void> salvaAllenamenti({
-    required String titolo,
-    required String id,
-    required String durata,
-    required double volume,
-    required int bpm,
-    required int nAllenamenti
-  }) async{
+
+  Future<void> salvaAllenamentoCompletato(AllenamentoCompletato allenamento) async{
     final db = await instance.database;
 
+    await db.insert(
+      'sessioni_allenamento', 
+      allenamento.toMap(), 
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
+  
+  Future<void> salvaAllenamenti(AllenamentoCompletato allenamento, int nAllenamenti) async{
+    final db = await instance.database;
     await db.transaction((txn) async{
-      await txn.insert('sessioni_allenamento',{
-        'id': DateTime.now().millisecondsSinceEpoch.toString(),
-        'scheda_id': id,
-        'utente_id': Sessione().utenteCorrente!.id,
-        'titolo_scheda' : titolo,
-        'data': DateTime.now().toIso8601String(),
-        'durata_secondi': durata,
-        'volume_totale': volume,
-        'bpm': bpm,
-      });
+      await txn.insert(
+        'sessioni_allenamento',
+         allenamento.toMap(),
+          conflictAlgorithm: ConflictAlgorithm.replace
+        );
 
       await txn.update(
         'user',

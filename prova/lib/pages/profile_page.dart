@@ -68,9 +68,11 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
   }
 
   // Metodo per aggiornare la UI se serve (es. dopo un allenamento)
-  void aggiorna() {
+  void aggiorna() async{
+    //final conteggio = await DatabaseHelper.instance.contaAllenamenti();
     setState(() {
       utente = Sessione().utenteCorrente!;
+      //utente.allenamentiFatti = conteggio;
     });
   }
   void _mostraOpzioniFoto(){

@@ -26,6 +26,7 @@ class AuthWrapper extends StatelessWidget {
           utente.fotoUrl = localData.fotoUrl;
         }
         Sessione().utenteCorrente = utente;
+        Sessione().utenteCorrente!.allenamentiFatti = await DatabaseHelper.instance.contaAllenamenti();
         await DatabaseHelper.instance.salvaUtenteCorrente(id: utente.id, nome: utente.nome, email: utente.email, password: utente.password, peso: utente.pesoAttuale ?? 0, altezza: utente.altezza ?? 0, allenamenti_fatti: utente.allenamentiFatti, fotoUrl: utente.fotoUrl);
         for (var scheda in utente.allenamenti) {
           await DatabaseHelper.instance.inserisciSchedaCompleta(scheda);

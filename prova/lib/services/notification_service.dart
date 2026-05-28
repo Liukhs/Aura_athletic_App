@@ -10,10 +10,23 @@ class NotificationService{
       Vibration.vibrate(pattern: [0, 500, 100, 500]);
     }
 
-    FlutterRingtonePlayer().playNotification(
-      volume: 1.0,
-      looping: false
-    );
+    await _player.setAudioContext(AudioContext(
+      android: const AudioContextAndroid(
+        usageType: AndroidUsageType.media,
+        contentType: AndroidContentType.music,
+        audioFocus: AndroidAudioFocus.gainTransientMayDuck
+      ),
+      iOS: AudioContextIOS(
+        category: AVAudioSessionCategory.playback,
+        options: {
+          AVAudioSessionOptions.duckOthers,
+          AVAudioSessionOptions.interruptSpokenAudioAndMixWithOthers
+        },
+      ),
+    ));
+
+    await _player.play(AssetSource('sounds/ui-alarm-alert-bells-ra-music-1-00-02.mp3'));
+    
 
   }
 }

@@ -1,3 +1,4 @@
+import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:prova/data/database_helper.dart';
 import 'package:prova/data/sessione.dart';
@@ -5,6 +6,7 @@ import 'package:prova/main.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
+import 'package:prova/models/serie.dart';
 import 'dart:async';
 import 'package:prova/pages/riepilogo_page.dart';
 import 'package:prova/services/notification_service.dart';
@@ -30,10 +32,58 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
   int _secondiRimanenti = 0;
   Timer? _timerRecupero;
   bool _mostraRecupero = false;
+  bool _isEspanso = true;
   final TimerService _timerAllenamento = TimerService();
   String _tempoTotale = "00:00";
   Timer? _tickerTotale;
   double volume = 0;
+
+  //Mappe utilizzate per tenere conto di tutti i controller e dei focus node all'interno delle righe delle serie
+  final Map<String, TextEditingController> _pesoControllers = {};
+  final Map<String, TextEditingController> _ripControllers = {};
+  final Map<String, FocusNode> _pesoFocusNodes = {};
+  final Map<String, FocusNode> _ripFocusNodes = {};
+
+  String _serieKey(EsercizioProgrammato es, int index) {
+    final esercizioIndex = widget.scheda.esercizi.indexOf(es);
+    return '$esercizioIndex-$index';
+  }
+
+  TextEditingController _getPesoController(EsercizioProgrammato es, int index) {
+    final key = _serieKey(es, index);
+    return _pesoControllers.putIfAbsent(
+      key,
+      () => TextEditingController(text: es.serie[index].peso.toString()),
+    );
+  }
+
+  TextEditingController _getRipController(EsercizioProgrammato es, int index) {
+    final key = _serieKey(es, index);
+    return _ripControllers.putIfAbsent(
+      key,
+      () => TextEditingController(text: es.serie[index].ripetizioni.toString()),
+    );
+  }
+
+  FocusNode _getPesoFocusNode(EsercizioProgrammato es, int index) {
+    final key = _serieKey(es, index);
+    return _pesoFocusNodes.putIfAbsent(key, () => FocusNode());
+  }
+
+  FocusNode _getRipFocusNode(EsercizioProgrammato es, int index) {
+    final key = _serieKey(es, index);
+    return _ripFocusNodes.putIfAbsent(key, () => FocusNode());
+  }
+
+  void _selectAll(TextEditingController controller) {
+    Future.delayed(Duration.zero, () {
+      controller.selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: controller.text.length,
+      );
+    });
+  }
+  
 
   void initState(){
     super.initState();
@@ -103,29 +153,38 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
   void dispose() {
     _timerRecupero?.cancel(); // Fondamentale per non avere leak di memoria
     _tickerTotale?.cancel();
+    for (final controller in _pesoControllers.values) {
+      controller.dispose();
+    }
+    for (final controller in _ripControllers.values) {
+      controller.dispose();
+    }
+    for (final node in _pesoFocusNodes.values) {
+      node.dispose();
+    }
+    for (final node in _ripFocusNodes.values) {
+      node.dispose();
+    }
     super.dispose();
   }
 
   void salvaAllenamento() async{
     Sessione().utenteCorrente!.allenamentiFatti += 1;
+    AllenamentoCompletato daSalvare = AllenamentoCompletato(id: widget.scheda.id, nome: widget.scheda.titolo, tempoMinuti: _tempoTotale, volume: volume, bpm: 120, data: DateTime.now());
     final db = await DatabaseHelper.instance; 
-    await  DatabaseHelper.instance.salvaAllenamentoCompletato(
-      titolo: widget.scheda.titolo,
-      id: widget.scheda.id,
-      durata: _tempoTotale,
-      volume: volume,
-      bpm: 120
-    );
-    await DatabaseHelper.instance.aggiornaAllenamentiFatti(
-      Sessione().utenteCorrente!.id,
-      Sessione().utenteCorrente!.allenamentiFatti
-    );
+    //await  DatabaseHelper.instance.salvaAllenamentoCompletato(daSalvare);
+    //await DatabaseHelper.instance.aggiornaAllenamentiFatti(
+    //  Sessione().utenteCorrente!.id,
+    //  Sessione().utenteCorrente!.allenamentiFatti
+    //);
+    await DatabaseHelper.instance.salvaAllenamenti(daSalvare, Sessione().utenteCorrente!.allenamentiFatti);
   }
 
 
 
   @override
   Widget build(BuildContext context) {
+    final double screenHeight = MediaQuery.of(context).size.height;
     return PopScope(
       canPop: true,
       onPopInvokedWithResult: (didPop, result){
@@ -152,7 +211,11 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
           Sessione().schedaAttiva = null;
           Sessione().utenteCorrente!.allenamentiFatti += 1; 
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainScreen(initialIndex: 2)),(route)=>false);}, 
-          style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)))
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.orangeAccent, 
+            foregroundColor: Colors.black, 
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))), 
+            child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)))
           ]
           ),
           centerTitle: false,
@@ -260,10 +323,23 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
                             Padding(
                               padding: const EdgeInsets.symmetric(vertical: 1.0),
                               child: _buildRigaSerie(es, i)
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              _addRigaSerie(es);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orangeAccent, 
+                              foregroundColor: Colors.black,
+                              minimumSize: const Size(double.infinity, 40), 
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))
                             ),
+                            child: const Text("Aggiungi Serie", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                          )
                         ],
                       ),
                     ),
+                    
                   );
                 },
               ),
@@ -271,42 +347,122 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
           ],
         ),
         bottomNavigationBar: _mostraRecupero
-            ? Container(
-                height: 70,
+            ? GestureDetector(
+              onVerticalDragUpdate: (details){
+                if(details.delta.dy > 5){
+                  setState(() {
+                    _isEspanso = false;
+                  });
+                }else if(details.delta.dy < 500){
+                  _isEspanso = true;
+                }
+              },
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeInOut,
+                height: _isEspanso ? screenHeight : 70,
+                width: double.infinity,
                 color: const Color(0xFF1E1E1E),
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.hourglass_bottom, color: Colors.orangeAccent),
-                        SizedBox(width: 10),
-                        Text("RECUPERO...", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
-                      ],
-                    ),
-                    const SizedBox(width: 40),
-                    ElevatedButton(onPressed: ()=>{_stoppaRecupero()},
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
-                    child: Text("Salta")),
-                    Text(
-                      "${_secondiRimanenti}s",
-                      style: const TextStyle(
-                          color: Colors.orangeAccent,
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Monospace'),
-                    ),
-                  ],
+                child: AnimatedSwitcher(
+                  duration: Duration(milliseconds: 300),
+                  child: _isEspanso ? _buildFullScreenLayout() : _buildCompactLayout(),
                 ),
-              )
+              ),
+            )
             : null,
       ),
     );
   }
 
+  void _addRigaSerie(EsercizioProgrammato es){
+    setState(() {
+        es.serie.add(Serie(
+          id: es.serie.last.id, 
+          completata: false, 
+          esercizioId: es.serie.last.esercizioId, 
+          peso: es.serie.last.peso, 
+          ripetizioni: es.serie.last.ripetizioni, 
+          riposoSecondi: es.serie.last.riposoSecondi
+        )
+      );
+    });    
+  }
+
+  Widget _buildCompactLayout(){
+    return Container(
+      key: ValueKey(1),
+      height: 70,
+      color: const Color(0xFF1E1E1E),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.hourglass_bottom, color: Colors.orangeAccent),
+              SizedBox(width: 10),
+              Text("RECUPERO...", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))
+            ],
+          ),
+          const SizedBox(width: 40),
+          ElevatedButton(onPressed: ()=>{_stoppaRecupero()},
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.orangeAccent, foregroundColor: Colors.black, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+          child: Text("Salta")),
+          Text(
+            "${_secondiRimanenti}s",
+            style: const TextStyle(
+                color: Colors.orangeAccent,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                fontFamily: 'Monospace'),
+          ),
+        ],
+      ),
+    );
+  }
+  Widget _buildFullScreenLayout(){
+    return Column(
+      key: ValueKey(2),
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        
+        const SizedBox(height: 20),
+        const Text("RECUPERO IN CORSO", style: TextStyle(fontSize: 22, color: Colors.white, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 40),
+        CircularCountDownTimer(width: 300, height: 300, duration: _secondiRimanenti, fillColor: Colors.black, ringColor: Colors.orangeAccent, textStyle: TextStyle(
+          fontSize: 80,
+          color: Colors.orangeAccent,
+          fontWeight: FontWeight.bold,
+        ),
+        textAlign: TextAlign.center,
+        isReverse: true,
+        onComplete: (){
+          _mostraRecupero = false;
+        } 
+        ),
+        
+        const SizedBox(height: 60),
+        ElevatedButton(
+          onPressed: _stoppaRecupero,
+          style: ElevatedButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+            backgroundColor: Colors.orangeAccent,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30))
+          ),
+          child: const Text("SALTA", style: TextStyle(fontSize: 18, color: Colors.black),),
+        ),
+        const SizedBox(height: 20)
+      ],
+    );
+  }
+
   Widget _buildRigaSerie(EsercizioProgrammato es, int index){
     bool isFatta = es.serie[index].completata;
+    final controllerPeso = _getPesoController(es, index);
+    final controllerRip = _getRipController(es, index);
+    final focusPeso = _getPesoFocusNode(es, index);
+    final focusRip = _getRipFocusNode(es, index);
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -318,7 +474,11 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
         children: [
           Expanded(flex: 1, child: Text("${index + 1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold))),
           Expanded(flex: 2, child: Center(child: TextFormField(
-            initialValue: es.serie[index].peso.toString(),
+            controller: controllerPeso,
+            focusNode: focusPeso,
+            onTap: (){
+              _selectAll(controllerPeso);
+            },
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white),
@@ -336,7 +496,11 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
           )
           ),
           Expanded(flex: 2, child: Center(child: TextFormField(
-            initialValue: es.serie[index].ripetizioni.toString(),
+            controller: controllerRip,
+            focusNode: focusRip,
+            onTap: (){
+              _selectAll(controllerRip);
+            },
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.white),
