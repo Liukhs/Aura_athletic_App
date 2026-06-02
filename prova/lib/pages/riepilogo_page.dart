@@ -7,6 +7,7 @@ import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/widgets/post_card.dart';
 import 'package:prova/data/sessione.dart';
+import 'package:prova/pages/allenamento_completato_page.dart';
 
 class PaginaRiepilogo extends StatefulWidget{
   const PaginaRiepilogo({super.key});
@@ -95,7 +96,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: (){
-          print("Hai cliccato la card");
+          Navigator.push(context, MaterialPageRoute(builder:(context)=> AllenamentoCompletatoPage()));
         },
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
