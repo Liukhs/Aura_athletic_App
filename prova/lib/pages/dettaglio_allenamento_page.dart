@@ -80,7 +80,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                                 color: Colors.grey[800],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: es.esercizio.urlThumb != null ? Thumbnail(esercizio: es.esercizio) : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
+                              child: es.esercizio.imagePath != null ? Thumbnail(esercizio: es.esercizio) : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
                             ),
                             const SizedBox(width: 12),
                             Expanded(

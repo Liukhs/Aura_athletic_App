@@ -18,13 +18,13 @@ class DataService {
         print("1 JSON scaricato, inizio a cercare gli esercizi");
 
         List<Esercizio> tuttiGliEsercizi = (data['esercizi'] as List)
-        .map((e) => Esercizio.fromJson(e))
+        .map((e) => Esercizio.fromJsonProva(e))
         .toList();
         Sessione().tuttiGliEsercizi = tuttiGliEsercizi;
         
         print("2 Esercizi completati, inzio ricerca corsi");
         List<Corso> tuttiICorsi = (data['corsi'] as List)
-        .map((e)=> Corso.fromJson(e))
+        .map((e)=> Corso.fromJsonProva(e))
         .toList();
         Sessione().tuttiICorsi = tuttiICorsi;
 

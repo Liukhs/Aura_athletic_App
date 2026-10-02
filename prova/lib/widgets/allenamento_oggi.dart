@@ -3,6 +3,16 @@ import 'package:prova/data/sessione.dart';
 import 'package:prova/pages/allenamento_page.dart';
 Widget CardAllenamentoOdierno(BuildContext context){
   final utenteLoggato = Sessione().utenteCorrente;
+
+  if(utenteLoggato == null || utenteLoggato.allenamenti.isEmpty){
+    return const Padding(
+      padding: EdgeInsetsGeometry.all(16),
+      child: Text(
+        'Nessuna scheda di allenamento disponibile',
+        style: TextStyle(color: Colors.grey),
+      ),
+    );
+  }
   final primaScheda = utenteLoggato!.allenamenti.first;
 
   return Container(

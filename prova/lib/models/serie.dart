@@ -1,4 +1,5 @@
 import 'package:prova/models/esercizio.dart';
+import 'package:uuid/uuid.dart';
 ///Rappresenta una serie di un [Esercizio]
 class Serie{//
   String? id;
@@ -6,16 +7,16 @@ class Serie{//
   double? peso;
   bool completata;
   int? riposoSecondi;
-  final String? esercizioId;
+  final String? esercizioProgrammatoId;
 
   Serie({
-    this.id,
+    String? id,
     this.ripetizioni,
     this.peso, 
     this.completata = false,
     this.riposoSecondi,
-    this.esercizioId
-  });
+    this.esercizioProgrammatoId
+  }) : id = id ?? const Uuid().v4(); 
 
   Map<String, dynamic> toMap(String compIdEsercizio){
     return{
@@ -23,15 +24,14 @@ class Serie{//
       'esercizio_programmato_id': compIdEsercizio,
       'peso': peso,
       'ripetizioni':ripetizioni,
-      'riposo':riposoSecondi,
-      'completata': completata ? 1 : 0,
+      'riposo_sec':riposoSecondi,
     };
   }
 
   factory Serie.fromMap(Map<String, dynamic> map){
     return Serie(
       id: map['id'] as String?,
-      esercizioId: map['esercizio_programmato_id'] as String?,
+      esercizioProgrammatoId: map['esercizio_programmato_id'] as String?,
       peso: map['peso']!= null ? (map['peso'] as num).toDouble() : null,
       ripetizioni: map['ripetizioni'] as int?,
       riposoSecondi: map['riposo'] as int?,

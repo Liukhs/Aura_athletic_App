@@ -189,7 +189,7 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
     //  Sessione().utenteCorrente!.id,
     //  Sessione().utenteCorrente!.allenamentiFatti
     //);
-    await DatabaseHelper.instance.salvaAllenamenti(daSalvare, Sessione().utenteCorrente!.allenamentiFatti);
+    await DatabaseHelper.instance.salvaAllenamenti(daSalvare, Sessione().utenteCorrente!.allenamentiFatti, Sessione().utenteCorrente!.id);
   }
 
 
@@ -298,7 +298,7 @@ Widget build(BuildContext context) {
                                     color: Colors.grey[800],
                                     borderRadius: BorderRadius.circular(8),
                                   ),
-                                  child: es.esercizio.urlThumb != null
+                                  child: es.esercizio.imagePath != null
                                       ? Thumbnail(esercizio: es.esercizio)
                                       : const Icon(Icons.fitness_center, color: Colors.orangeAccent),
                                 ),
@@ -403,7 +403,7 @@ Widget build(BuildContext context) {
         es.serie.add(Serie(
           id: es.serie.last.id, 
           completata: false, 
-          esercizioId: es.serie.last.esercizioId, 
+          esercizioProgrammatoId: es.serie.last.esercizioProgrammatoId, 
           peso: es.serie.last.peso, 
           ripetizioni: es.serie.last.ripetizioni, 
           riposoSecondi: es.serie.last.riposoSecondi

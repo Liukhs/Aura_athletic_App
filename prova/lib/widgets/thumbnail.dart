@@ -11,16 +11,16 @@ class Thumbnail extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return GestureDetector(
-      onTap: () => mostraVideoEsercizio(context, esercizio.urlVideo!),
+      onTap: () => mostraVideoEsercizio(context, esercizio.gifPath!), 
       child: Container(
         width: 60,
         height: 60,
         decoration: BoxDecoration(
           color: Colors.grey[900],
           borderRadius: BorderRadius.circular(8),
-          image: esercizio.urlThumb != null 
+          image: esercizio.imagePath != null 
           ? DecorationImage(
-            image: NetworkImage(esercizio.urlThumb!),
+            image: NetworkImage(esercizio.imagePath!),
             fit: BoxFit.cover
           )
           :null

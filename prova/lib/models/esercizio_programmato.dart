@@ -1,6 +1,7 @@
 import 'esercizio.dart';
 import 'package:prova/models/serie.dart';
 import 'package:prova/models/gruppo_muscolare.dart';
+import 'package:uuid/uuid.dart';
 
 class EsercizioProgrammato {
   final String id;
@@ -9,10 +10,11 @@ class EsercizioProgrammato {
   
 
   EsercizioProgrammato({
-    required this.id,
+    String? id,
     required this.esercizio,
-    required this.serie,
-  });
+    List<Serie>? serie,
+  }): id = id ?? const Uuid().v4(),
+      serie = serie ?? [Serie()];
 
   factory EsercizioProgrammato.fromJson(
     Map<String, dynamic> json,
@@ -27,10 +29,13 @@ class EsercizioProgrammato {
       serie: (json['serie'] as List).map((s)=> Serie.fromJson(s)).toList()
     );
   }
-  factory EsercizioProgrammato.fromDbMap(Map<String, dynamic> dbMap, List<Esercizio> tuttiGliEsercizi, List<Serie> serieEsercizio){
-    return EsercizioProgrammato(id: dbMap['id'] as String, esercizio: tuttiGliEsercizi.firstWhere(
-      (e) => e.nome == dbMap['nome'],
-      orElse: () => Esercizio(nome: "default", id: dbMap['nome'] as String, istruzioni: dbMap['istruzioni'], categoria: GruppoMuscolare.values.byName(dbMap['categoria'] as String))
+  factory EsercizioProgrammato.fromDbMap(Map<String, dynamic> dbMap, List<Serie> serieEsercizio){
+    return EsercizioProgrammato(id: dbMap['id'] as String, esercizio: Esercizio(
+      id: dbMap['exercise_id'] as String,
+      nome: dbMap['nome'] as String,
+      imagePath: dbMap['image_path'] as String?,
+      gifPath: dbMap['gif_path'] as String?,
+      parteDelCorpo: dbMap['body_parts'] as String?
     ),
     serie: serieEsercizio,
     );
@@ -41,8 +46,10 @@ class EsercizioProgrammato {
       'id': id,
       'scheda_id': schedaId,
       'nome': esercizio.nome,
-      'categoria': esercizio.categoria.name,
-      'istruzioni': esercizio.istruzioni
+      'exercise_id': esercizio.id,
+      'image_path': esercizio.imagePath,
+      'gif_path': esercizio.gifPath,
+      'body_part': esercizio.parteDelCorpo,
     };
   }
 

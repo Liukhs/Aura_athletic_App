@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/allenamento_completato.dart';
@@ -40,37 +41,10 @@ class DatabaseHelper {
   }
 
   Future _createDB(Database db, int version) async{
-    //Tabella schede
-    await db.execute('''
-    CREATE TABLE schede (
-      id TEXT PRIMARY KEY,
-      titolo TEXT NOT NULL
-    )
-  ''');
-    //tabella esercizi_programmati(legata a schede)
-    await db.execute('''
-    CREATE TABLE esercizi_programmati (
-      id TEXT PRIMARY KEY,
-      scheda_id TEXT NOT NULL,
-      nome TEXT NOT NULL,
-      categoria TEXT,
-      istruzioni TEXT,
-      FOREIGN KEY (scheda_id) REFERENCES schede (id) ON DELETE CASCADE
-    )
-  ''');
-    //Tabella serie
-    await db.execute('''
-    CREATE TABLE serie (
-      id TEXT PRIMARY KEY,
-      esercizio_programmato_id TEXT NOT NULL,
-      peso REAL,
-      ripetizioni INTEGER,
-      riposo INTEGER, -- Spazio per i secondi di recupero che avevi chiesto
-      completata INTEGER NOT NULL DEFAULT 0, -- 0 = false, 1 = true
-      FOREIGN KEY (esercizio_programmato_id) REFERENCES esercizi_programmati (id) ON DELETE CASCADE
-    )
-  ''');
 
+    await _creaTabelleSchede(db);
+    await _creaEserciziCache(db);
+  
     //tabella allenamenti finiti
     await db.execute('''
     CREATE TABLE sessioni_allenamento (
@@ -91,7 +65,9 @@ class DatabaseHelper {
     CREATE TABLE risultati_esercizi (
       id TEXT PRIMARY KEY,
       sessione_id TEXT,
+      exercise_id TEXT,
       nome_esercizio TEXT,
+      numero_serie INTEGER,
       peso REAL,
       ripetizioni INTEGER,
       FOREIGN KEY (sessione_id) REFERENCES sessioni_allenamento (id) ON DELETE CASCADE
@@ -103,7 +79,7 @@ class DatabaseHelper {
       id TEXT PRIMARY KEY,
       nome TEXT,
       email TEXT NOT NULL,
-      password TEXT NOT NULL,
+      password TEXT,
       foto_path TEXT,
       peso REAL,
       altezza INTEGER,
@@ -112,23 +88,86 @@ class DatabaseHelper {
   ''');
   }
 
+  Future _creaTabelleSchede(Database db) async{
+    await db.execute('''
+    CREATE TABLE schede (
+      id TEXT PRIMARY KEY,
+      user_id TEXT_NOT_NULL,
+      titolo TEXT NOT NULL
+    )
+    ''');
+    await db.execute(''' 
+    CREATE TABLE esercizi_programmati (
+      id TEXT PRIMARY KEY,
+      scheda_id TEXT NOT NULL,
+      exercise_id TEXT NOT NULL,
+      nome TEXT NOT NULL,
+      image_path TEXT,
+      gif_path TEXT,
+      body_part TEXT,
+      FOREIGN KEY (scheda_id) REFERENCES schede (id) ON DELETE CASCADE
+    )
+    ''');
+
+    await db.execute(''' 
+    CREATE TABLE serie (
+      id TEXT PRIMARY KEY,
+      esercizio_programmato_id TEXT NOT NULL,
+      ripetizioni INTEGER,
+      peso REAL,
+      riposo_sec INTEGER,
+      FOREIGN KEY (esercizio_programmato_id) REFERENCES esercizi_programmati (id) ON DELETE CASCADE
+    )
+    ''');
+
+    await db.execute('CREATE INDEX idx_schede_user ON schede (user_id)');
+    await db.execute('CREATE INDEX idx_esprog_scheda ON esercizi_programmati (scheda_id)');
+    await db.execute('CREATE INDEX idx_serie_esprog ON serie (esercizio_programmato_id)');
+  }
+
+  Future _creaEserciziCache(Database db) async{
+    await db.execute(''' 
+    CREATE TABLE esercizi_cache (
+      id TEXT PRIMARY KEY,
+      dati TEXT NOT NULL,
+      cached_at TEXT NOT NULL
+    )
+    ''');
+  }
+
   Future close() async{
     final db = await instance.database;
     db.close();
   }
 
-  Future<void> inserisciSchedaCompleta(SchedaAllenamento scheda) async{
+  Future<void> inserisciSchedaCompleta(SchedaAllenamento scheda, String user_id) async{
     final db = await instance.database;
+
+    print('DB PATH: ${db.path}');
+    print('DIO PORCO COLONNE: ${await db.rawQuery('PRAGMA table_info(esercizi_programmati)')}');
     await db.transaction((txn) async {
-      await txn.insert('schede', scheda.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-      for (var esercizio in scheda.esercizi) {
-        await txn.insert('esercizi_programmati', esercizio.toMap(scheda.id), conflictAlgorithm: ConflictAlgorithm.replace);
-        for (var serie in esercizio.serie) {
-          await txn.insert('serie', serie.toMap(esercizio.id), conflictAlgorithm: ConflictAlgorithm.replace);
+
+      await txn.delete('esercizi_programmati', where: 'scheda_id = ?', whereArgs: [scheda.id]);
+
+      await txn.insert('schede', {...scheda.toMap(), 'user_id': user_id}, conflictAlgorithm: ConflictAlgorithm.replace);
+
+      final batch = txn.batch();
+      for(var i = 0; i < scheda.esercizi.length; i++){
+        final esercizio = scheda.esercizi[i];
+        batch.insert('esercizi_programmati', esercizio.toMap(scheda.id));
+        for(var j = 0; j < esercizio.serie.length; j++){
+          batch.insert('serie', esercizio.serie[j].toMap(esercizio.id));
         }
       }
+      await batch.commit(noResult: true);
     });
   }
+
+  Future<void> eliminaScheda(String schedaId) async{
+    final db = await instance.database;
+    await db.delete('schede', where: 'id = ?', whereArgs: [schedaId]);
+  }
+
   Future<int> contaAllenamenti() async{
     final db = await instance.database;
 
@@ -147,7 +186,7 @@ class DatabaseHelper {
     );
   }
   
-  Future<void> salvaAllenamenti(AllenamentoCompletato allenamento, int nAllenamenti) async{
+  Future<void> salvaAllenamenti(AllenamentoCompletato allenamento, int nAllenamenti, String userId) async{
     final db = await instance.database;
     await db.transaction((txn) async{
       await txn.insert(
@@ -163,7 +202,7 @@ class DatabaseHelper {
         },
         //Clausola where usata per identificare quale utente aggiornare, in base all'id univoco
         where: 'id = ?',
-        whereArgs: [Sessione().utenteCorrente!.id]
+        whereArgs: [userId],
       );
     });
   }
@@ -180,16 +219,22 @@ class DatabaseHelper {
   }) async{
     final db = await instance.database;
 
-    await db.insert('user', {
-      'id': id,
+    final valori = {
       'nome': nome,
       'email': email,
       'password': password,
       'foto_path': fotoUrl ?? "",
       'peso': peso,
       'altezza': altezza,
-      'allenamenti_fatti': allenamenti_fatti ?? 0
-    }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      'allenamenti_fatti': allenamenti_fatti ?? 0,
+    };
+
+    final aggiornate = await db.update('user', valori, where: 'id = ?', whereArgs: [id]);
+
+    if(aggiornate == 0){
+      await db.insert('user', {'id':id, ...valori});
+    }
+
   }
   Future<void> aggiornaAllenamentiFatti(String id, int nAllenamenti) async{
     final db = await instance.database;
@@ -216,10 +261,10 @@ class DatabaseHelper {
     );
   }
 
-  Future<List<SchedaAllenamento>> ottieniSchedeComplete(List<Esercizio> tuttiGliEsercizi) async{
+  Future<List<SchedaAllenamento>> ottieniSchedeComplete(String userId) async{
     final db = await instance.database;
 
-    final List<Map<String, dynamic>> resSchede = await db.query('schede');
+    final List<Map<String, dynamic>> resSchede = await db.query('schede', where: 'user_id = ?', whereArgs: [userId]);
 
     List<SchedaAllenamento> schedeDart = [];
 
@@ -236,15 +281,33 @@ class DatabaseHelper {
 
         List<Serie> serieDart = resSerie.map((sMap) => Serie.fromMap(sMap)).toList();
 
-        eserciziDart.add(EsercizioProgrammato.fromDbMap(esMap, tuttiGliEsercizi, serieDart));
+        eserciziDart.add(EsercizioProgrammato.fromDbMap(esMap, serieDart));
       }
       schedeDart.add(SchedaAllenamento.fromDbMap(schedaMap, eserciziDart));
 
     }
 
     return schedeDart;
+  }
 
+  Future<void> salvaEsercizioInCache(Map<String, dynamic> riga) async{
+    final db = await instance.database;
+    await db.insert(
+      'esercizi_cache',
+      {
+        'id': riga['id'] as String,
+        'dati': jsonEncode(riga),
+        'cachet_at': DateTime.now().toIso8601String()
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace
+    );
+  }
 
+  Future<Map<String, dynamic>?> leggiEsercizioDaCache(String id) async{
+    final db = await instance.database;
+    final res = await db.query('esercizi_cache', where: 'id = ?', whereArgs: [id], limit: 1);
+    if(res.isEmpty) return null;
+    return jsonDecode(res.first['dati'] as String) as Map<String, dynamic>;
   }
 
   Future<List<AllenamentoCompletato>> ottieniCronologiaLocale() async{

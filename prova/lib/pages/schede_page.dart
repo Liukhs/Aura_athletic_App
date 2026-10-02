@@ -9,9 +9,9 @@ import 'package:prova/pages/allenamento_page.dart';
 
 class PaginaScheda extends StatefulWidget {
 
-  final List<Esercizio> tuttiGliEsercizi;
   
-  const PaginaScheda({super.key, required this.tuttiGliEsercizi});
+  
+  const PaginaScheda({super.key});
 
   @override
   State<PaginaScheda> createState() => _paginaSchedaState();
@@ -28,8 +28,13 @@ class _paginaSchedaState extends State<PaginaScheda>{
   }
 
   void _ricaricaSchedeLocalmente(){
+
+    final userId = Sessione().utenteCorrente!.id;
+
     setState(() {
-      _futureSchede = DatabaseHelper.instance.ottieniSchedeComplete(widget.tuttiGliEsercizi);
+      _futureSchede = userId == null
+        ? Future.value(<SchedaAllenamento>[])
+        : DatabaseHelper.instance.ottieniSchedeComplete(userId);
     });
   }
 

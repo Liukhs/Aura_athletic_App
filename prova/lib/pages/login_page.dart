@@ -27,18 +27,23 @@ class _LoginPageState extends State<PaginaLogin> {
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
+    Utente? utenteTrovato;
+    String? errore;
+
+
+
     try{
       List<Utente> tuttiGliUtenti = await DataService().loadAllData();
 
-      if(!mounted) return;
-      Navigator.pop(context);
+      //if(!mounted) return;
+      //Navigator.pop(context);
 
       final emailInserita = _emailController.text.trim();
       final passwordInserita = _passwordController.text.trim();
 
-      Utente? utenteTrovato;
+      //Utente? utenteTrovato;
       for(Utente u in tuttiGliUtenti){
-        if(u.email == emailInserita && u.password == passwordInserita){
+        if(u.email.toLowerCase() == emailInserita.toLowerCase() && u.password == passwordInserita){
           utenteTrovato = u;
           break;
         }
@@ -46,24 +51,49 @@ class _LoginPageState extends State<PaginaLogin> {
 
       if(utenteTrovato != null){
         Sessione().utenteCorrente = utenteTrovato;
-        await DatabaseHelper.instance.salvaUtenteCorrente(id: utenteTrovato.id, nome: utenteTrovato.nome, email: utenteTrovato.email, password: utenteTrovato.password, peso: utenteTrovato.pesoAttuale ?? 0, altezza: utenteTrovato.altezza ?? 0, allenamenti_fatti: utenteTrovato.allenamentiFatti, fotoUrl: utenteTrovato.fotoUrl).catchError((e) => print("errore salvataggio: $e"));
-        await DatabaseHelper.instance.stampaTuttoIlDatabase();
+        
+        await DatabaseHelper.instance.salvaUtenteCorrente(
+          id: utenteTrovato.id, 
+          nome: utenteTrovato.nome, 
+          email: utenteTrovato.email, 
+          password: utenteTrovato.password, 
+          peso: utenteTrovato.pesoAttuale ?? 0, 
+          altezza: utenteTrovato.altezza ?? 0, 
+          allenamenti_fatti: utenteTrovato.allenamentiFatti, 
+          fotoUrl: utenteTrovato.fotoUrl
+        );
+        //await DatabaseHelper.instance.stampaTuttoIlDatabase();
         for(var scheda in utenteTrovato.allenamenti){
-          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda);
+          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda, utenteTrovato.id);
         }
 
         final SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('email_salvata', utenteTrovato.email);
 
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()),);
+        //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()),);
       }else{
         _mostraErrore("Credenziali non valide. Riprova");
       }
-    }catch (e){
-      if(!mounted) return;
-      Navigator.pop(context);
-      _mostraErrore("Errore di connessione o nel database");
+    }catch (e, stack){
+      debugPrint('ERRORE LOGIN: $e');
+      debugPrint('$stack');
+      errore = "Errore di connessione o nel database $e";
     }
+    if(!mounted) return;
+    Navigator.pop(context);
+
+    if(errore != null){
+      _mostraErrore(errore);
+      return;
+    }
+    if(utenteTrovato == null){
+      _mostraErrore("Credenziali non valide. riprova");
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen())
+    );
   }
 
   void _mostraErrore(String messaggio) {
