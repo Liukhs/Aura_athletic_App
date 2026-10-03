@@ -2,58 +2,74 @@ import 'package:flutter/material.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/data/database_helper.dart';
-import 'package:prova/services/data_service.dart'; // Il file che abbiamo creato
-import 'package:prova/models/utente.dart';
 import 'package:prova/pages/login_page.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:prova/services/schede_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
 
-  Future<List<Utente>> caricaDatiEVerificaSessione() async{
-    List<Utente> utenti = await DataService().loadAllData();
+class _AuthWrapperState extends State<AuthWrapper>{
+  late final Future<void> _caricamento;
 
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String? emailSalvata = prefs.getString('email_salvata');
+  @override
+  void initState(){
+    super.initState();
+    _caricamento = _verificaSessione();
+  }
+  
 
-    if(emailSalvata != null){
-      try{
-        final utente = utenti.firstWhere((u) => u.email == emailSalvata);
-        final localData = await DatabaseHelper.instance.getUtenteById(utente.id);
+  Future<void> _verificaSessione() async{
+    final supaUser = Supabase.instance.client.auth.currentUser;
 
-        if(localData != null){
-          utente.fotoUrl = localData.fotoUrl;
-        }
-        Sessione().utenteCorrente = utente;
-        Sessione().utenteCorrente!.allenamentiFatti = await DatabaseHelper.instance.contaAllenamenti();
-        await DatabaseHelper.instance.salvaUtenteCorrente(id: utente.id, nome: utente.nome, email: utente.email, password: utente.password, peso: utente.pesoAttuale ?? 0, altezza: utente.altezza ?? 0, allenamenti_fatti: utente.allenamentiFatti, fotoUrl: utente.fotoUrl);
-        for (var scheda in utente.allenamenti) {
-          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda, Sessione().utenteCorrente!.id);
-        }
-      }catch (e){
-        print("[ERRORE] $e");
+    if(supaUser == null) return;
+
+    
+
+    try{
+      final db = DatabaseHelper.instance;
+
+      final utente = await db.getUtenteById(supaUser.id);
+      if(utente == null){
+        
+        await Supabase.instance.client.auth.signOut();
+        return;
       }
+
+      try {
+        await SchedeRepository()
+          .sincronizza(supaUser.id)
+          .timeout(const Duration(seconds: 8));
+      } catch (e) {
+        debugPrint('[sync schede] $e');
+      }
+      final schede = await db.ottieniSchedeComplete(supaUser.id);
+      final utenteConSchede = utente.copyWith(allenamenti: schede);
+      utenteConSchede.allenamentiFatti = await db.contaAllenamenti();
+
+      Sessione().inizializzaSessione(utenteConSchede);
+    } catch(e, stack){
+      debugPrint('[ERRORE SESSIONE] $e\n$stack');
+      return;
     }
-    return utenti;
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<List<Utente>>(
-      // Chiamiamo il servizio che scarica tutto dal GitHub
-      future: caricaDatiEVerificaSessione(), 
-      builder: (context, snapshot) {
-        
-        if(snapshot.connectionState == ConnectionState.waiting){
+  Widget build(BuildContext context){
+    return FutureBuilder<void>(
+      future: _caricamento,
+      builder: (context, snapshot){
+        if(snapshot.connectionState != ConnectionState.done){
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
 
-        if(Sessione().utenteCorrente != null){
-          return const MainScreen();
-        } else{
-          return PaginaLogin();
-        }
+        return Sessione().utenteCorrente != null
+          ? const MainScreen()
+          : const PaginaLogin();
       },
     );
   }

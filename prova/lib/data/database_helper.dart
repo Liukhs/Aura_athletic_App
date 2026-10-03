@@ -92,7 +92,7 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE schede (
       id TEXT PRIMARY KEY,
-      user_id TEXT_NOT_NULL,
+      user_id TEXT NOT NULL,
       titolo TEXT NOT NULL
     )
     ''');
@@ -220,6 +220,7 @@ class DatabaseHelper {
     final db = await instance.database;
 
     final valori = {
+      'id': id,
       'nome': nome,
       'email': email,
       'password': password,
@@ -356,5 +357,24 @@ class DatabaseHelper {
     }
 
     return null;
+  }
+
+  Future<void> sostituisciSchedeUtente(String userId, List<SchedaAllenamento> schede) async{
+    final db = await instance.database;
+    await db.transaction((txn) async{
+      await txn.delete('schede', where: 'user_id = ?', whereArgs: [userId]);
+
+      final batch = txn.batch();
+      for (final scheda in schede){
+        batch.insert('schede', {...scheda.toMap(), 'user_id': userId});
+        for(final esercizio in scheda.esercizi){
+          batch.insert('esercizi_programmati', esercizio.toMap(scheda.id));
+          for(final serie in esercizio.serie){
+            batch.insert('serie', serie.toMap(esercizio.id));
+          }
+        }
+      }
+      await batch.commit(noResult: true);
+    });
   }
 }

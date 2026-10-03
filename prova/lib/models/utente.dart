@@ -22,7 +22,7 @@ class Utente{
   final int? altezza;
   ///[allenamentiFatti] - [allenamenti] - [cronologiaAllenamenti] - [corsiPrenotati] - liste di contenimento di schede, allenamenti e corsi dell'utente
   int allenamentiFatti;
-  final List<SchedaAllenamento> allenamenti;
+  List<SchedaAllenamento> allenamenti;
   List<AllenamentoCompletato> cronologiaAllenamenti = [];
   List<Corso> corsiPrenotati = [];
 
@@ -36,9 +36,9 @@ class Utente{
     this.pesoAttuale,
     this.altezza,
     required this.allenamentiFatti,
-    this.allenamenti = const [],
+    List<SchedaAllenamento>? allenamenti,
     this.corsiPrenotati = const []
-  });
+  }): this.allenamenti = allenamenti ?? [];
   factory Utente.fromJson(
     Map<String, dynamic> json,
     List<SchedaAllenamento> tutteLeSchede,

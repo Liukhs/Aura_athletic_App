@@ -34,7 +34,7 @@ class Serie{//
       esercizioProgrammatoId: map['esercizio_programmato_id'] as String?,
       peso: map['peso']!= null ? (map['peso'] as num).toDouble() : null,
       ripetizioni: map['ripetizioni'] as int?,
-      riposoSecondi: map['riposo'] as int?,
+      riposoSecondi: map['riposo_sec'] as int?,
       completata: map['completata'] == 1,
     );
   }

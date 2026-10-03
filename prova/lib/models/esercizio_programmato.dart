@@ -35,7 +35,7 @@ class EsercizioProgrammato {
       nome: dbMap['nome'] as String,
       imagePath: dbMap['image_path'] as String?,
       gifPath: dbMap['gif_path'] as String?,
-      parteDelCorpo: dbMap['body_parts'] as String?
+      parteDelCorpo: dbMap['body_part'] as String?
     ),
     serie: serieEsercizio,
     );

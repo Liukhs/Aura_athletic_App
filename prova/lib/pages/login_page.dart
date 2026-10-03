@@ -4,7 +4,9 @@ import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/utente.dart';
 import 'package:prova/services/data_service.dart';
+import 'package:prova/services/schede_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaginaLogin extends StatefulWidget {
   const PaginaLogin({super.key});
@@ -33,51 +35,67 @@ class _LoginPageState extends State<PaginaLogin> {
 
 
     try{
-      List<Utente> tuttiGliUtenti = await DataService().loadAllData();
+      final res = await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim()
+      );
+      final supaUser = res.user!;
 
-      //if(!mounted) return;
-      //Navigator.pop(context);
+      final riga = await Supabase.instance.client
+          .from('profiles')
+          .select()
+          .eq('id', supaUser.id)
+          .maybeSingle();
+      
+      
 
-      final emailInserita = _emailController.text.trim();
-      final passwordInserita = _passwordController.text.trim();
-
-      //Utente? utenteTrovato;
-      for(Utente u in tuttiGliUtenti){
-        if(u.email.toLowerCase() == emailInserita.toLowerCase() && u.password == passwordInserita){
-          utenteTrovato = u;
-          break;
-        }
-      }
-
-      if(utenteTrovato != null){
-        Sessione().utenteCorrente = utenteTrovato;
+      if(riga != null){
+        
+       
         
         await DatabaseHelper.instance.salvaUtenteCorrente(
-          id: utenteTrovato.id, 
-          nome: utenteTrovato.nome, 
-          email: utenteTrovato.email, 
-          password: utenteTrovato.password, 
-          peso: utenteTrovato.pesoAttuale ?? 0, 
-          altezza: utenteTrovato.altezza ?? 0, 
-          allenamenti_fatti: utenteTrovato.allenamentiFatti, 
-          fotoUrl: utenteTrovato.fotoUrl
+          id: supaUser.id, 
+          nome: riga['nome'] ?? '', 
+          email: supaUser.email ?? '', 
+          password: '', 
+          peso: (riga['peso'] as num?)?.toDouble() ?? 0, 
+          altezza: (riga['altezza'] as num?)?.toInt() ?? 0, 
+          allenamenti_fatti: (riga['allenamenti_fatti'] as num?)?.toInt() ?? 0, 
+          fotoUrl: riga['foto_url']
         );
-        //await DatabaseHelper.instance.stampaTuttoIlDatabase();
-        for(var scheda in utenteTrovato.allenamenti){
-          await DatabaseHelper.instance.inserisciSchedaCompleta(scheda, utenteTrovato.id);
+
+        Sessione().utenteCorrente = await DatabaseHelper.instance.getUtenteById(supaUser.id);
+        utenteTrovato = Sessione().utenteCorrente!;
+        
+        //for(var scheda in utenteTrovato.allenamenti){
+          //await DatabaseHelper.instance.inserisciSchedaCompleta(scheda, utenteTrovato.id);
+        //}
+
+        try{
+          await SchedeRepository()
+            .sincronizza(supaUser.id)
+            .timeout(const Duration(seconds: 8));
+        }catch(e){
+          debugPrint('[sync schede] $e');
         }
 
+        final schede = await DatabaseHelper.instance.ottieniSchedeComplete(supaUser.id);
+        for(var scheda in schede){
+          Sessione().utenteCorrente!.allenamenti.add(scheda);
+        }
+        //Sessione().utenteCorrente!.allenamenti.addAll(schede);
+
         final SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('email_salvata', utenteTrovato.email);
+        await prefs.setString('email_salvata', Sessione().utenteCorrente!.email);
+        await prefs.setString('id_utente', Sessione().utenteCorrente!.id);
 
         //Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainScreen()),);
       }else{
+        await Supabase.instance.client.auth.signOut();
         _mostraErrore("Credenziali non valide. Riprova");
       }
-    }catch (e, stack){
-      debugPrint('ERRORE LOGIN: $e');
-      debugPrint('$stack');
-      errore = "Errore di connessione o nel database $e";
+    }on AuthException catch (e){
+      errore = 'credenziali non valide';
     }
     if(!mounted) return;
     Navigator.pop(context);
@@ -95,6 +113,7 @@ class _LoginPageState extends State<PaginaLogin> {
       MaterialPageRoute(builder: (context) => const MainScreen())
     );
   }
+
 
   void _mostraErrore(String messaggio) {
     ScaffoldMessenger.of(context).showSnackBar(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/corso.dart';
+import 'package:prova/services/esercizi_repository.dart';
 import 'package:prova/widgets/allenamento_oggi.dart';
 import 'package:prova/widgets/post_card.dart';
 import 'package:prova/widgets/widget_corso.dart';
@@ -27,7 +28,7 @@ class PaginaHome extends StatelessWidget{
               IconButton(
                 icon: const Icon(Icons.search, color: Colors.orangeAccent,),
                 onPressed: (){
-                  print("Pulsante ricerca premuto");
+                  testCatalogo(context);
                 },
                 ),
                 const SizedBox(width: 10),
@@ -76,6 +77,27 @@ class PaginaHome extends StatelessWidget{
           )
         );
       }
+    );
+  }
+}
+
+Future<void> testCatalogo(BuildContext context) async{
+  try{
+    
+    final lista = await EserciziRepository().lista();
+    final testo = lista.isEmpty
+      ? 'VUOTO: Probabile policy RLS mancante'
+      : 'CATALOGO OK: ${lista.length} esercizi, primo: ${lista.first.nome}';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(testo), duration: const Duration(seconds: 20)),
+      );
+  }catch(e){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('CATALOGO ERRORE: $e'),
+        duration: const Duration(seconds: 20),
+        backgroundColor: Colors.redAccent,
+      )
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:prova/pages/calendario_page.dart';
 import 'package:prova/pages/esercizi_page.dart';
 import 'package:prova/pages/misurazioni_page.dart';
 import 'package:prova/pages/statistiche_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaginaProfilo extends StatefulWidget {
   const PaginaProfilo({super.key});
@@ -149,7 +150,7 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
           ),
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.orangeAccent),
-            onPressed: () => DatabaseHelper.instance.stampaTuttoIlDatabase(),
+            onPressed: () => Supabase.instance.client.auth.signOut(),
           ),
         ],
       ),
