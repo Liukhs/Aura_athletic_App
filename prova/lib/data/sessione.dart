@@ -77,4 +77,8 @@ class Sessione extends ChangeNotifier { //
     }
 
   }
+
+  void sostituisciScheduleCorsi(List<Corso> corsi){
+    tuttiICorsi = corsi;
+  }
 }

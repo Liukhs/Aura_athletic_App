@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:prova/data/sessione.dart';
 import 'package:prova/models/allenamento_completato.dart';
+import 'package:prova/models/corso.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/utente.dart';
@@ -378,3 +379,4 @@ class DatabaseHelper {
     });
   }
 }
+

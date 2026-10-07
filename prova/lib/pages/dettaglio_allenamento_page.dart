@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/pages/allenamento_page.dart';
@@ -18,8 +20,13 @@ class PaginaDettaglioAllenamento extends StatefulWidget{
 }
 class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>{
 
+  
   @override
   Widget build(BuildContext context){
+    for(int i = 0; i< widget.scheda.esercizi.length; i++){
+      print("");
+      print("Pisello, ${widget.scheda.esercizi[i].id}");
+    }
     return Scaffold(
       appBar: AppBar(title: Text(widget.scheda.titolo), centerTitle: true,),
       body: Column(

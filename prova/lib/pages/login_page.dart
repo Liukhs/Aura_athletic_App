@@ -3,6 +3,7 @@ import 'package:prova/data/database_helper.dart';
 import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/models/utente.dart';
+import 'package:prova/services/corsi_repository.dart';
 import 'package:prova/services/data_service.dart';
 import 'package:prova/services/schede_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,6 +78,14 @@ class _LoginPageState extends State<PaginaLogin> {
             .timeout(const Duration(seconds: 8));
         }catch(e){
           debugPrint('[sync schede] $e');
+        }
+
+        try{
+          await CorsiRepository()
+            .sincronizzaCorsi()
+            .timeout(const Duration(seconds: 8));
+        }catch(e){
+          debugPrint('[Sync corsi] $e');
         }
 
         final schede = await DatabaseHelper.instance.ottieniSchedeComplete(supaUser.id);

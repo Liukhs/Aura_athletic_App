@@ -3,6 +3,7 @@ import 'package:prova/data/sessione.dart';
 import 'package:prova/main.dart';
 import 'package:prova/data/database_helper.dart';
 import 'package:prova/pages/login_page.dart';
+import 'package:prova/services/corsi_repository.dart';
 import 'package:prova/services/schede_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -47,6 +48,15 @@ class _AuthWrapperState extends State<AuthWrapper>{
       } catch (e) {
         debugPrint('[sync schede] $e');
       }
+
+      try{
+          await CorsiRepository()
+            .sincronizzaCorsi()
+            .timeout(const Duration(seconds: 8));
+        }catch(e){
+          debugPrint('[Sync corsi] $e');
+        }
+
       final schede = await db.ottieniSchedeComplete(supaUser.id);
       final utenteConSchede = utente.copyWith(allenamenti: schede);
       utenteConSchede.allenamentiFatti = await db.contaAllenamenti();

@@ -14,7 +14,7 @@ class EserciziRepository {
   }) async {
     var query = _db
       .from('exercises')
-      .select('id, name, body_part, equipment, target, image_path');
+      .select('id, name, body_part, equipment, target, image_path, muscle_group');
 
     if(parteDelCorpo != null) query = query.eq('body_part', parteDelCorpo);
     if(equipaggiamento != null) query = query.eq('equipment', equipaggiamento);

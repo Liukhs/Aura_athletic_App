@@ -12,6 +12,7 @@ const String mediaBaseUrl =
     'https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main';
 
 class SchedeRepository{
+  /// Creiamo l'istanza di Supabase
   final _supabase = Supabase.instance.client;
   
   /// Scarica le schede dell'utente da Supabase e sostituisce la copia locale.
@@ -29,7 +30,7 @@ class SchedeRepository{
       id, titolo,
       esercizi_programmati (
         id, ordine, exercise_id,
-        exercises ( name, image_path, gif_path, body_part ),
+        exercises ( name, image_path, gif_path, body_part, muscle_group, category ),
         serie_programmate( id, ordine, ripetizioni, peso, riposo_sec)
         )
     ''').order('created_at');
@@ -45,6 +46,11 @@ class SchedeRepository{
     final esercizi = eserciziRighe.map((e) {
       final catalogo = e['exercises'] as Map<String, dynamic>;
 
+      print('---- CATALOGO ESERCIZI-----\n');
+      print('$catalogo');
+
+      
+
       final serieRighe =
           List<Map<String, dynamic>>.from(e['serie_programmate'] as List)
             ..sort((a, b) => (a['ordine'] as int).compareTo(b['ordine'] as int));
@@ -57,6 +63,8 @@ class SchedeRepository{
           imagePath: _url(catalogo['image_path'] as String?),
           gifPath: _url(catalogo['gif_path'] as String?),
           parteDelCorpo: catalogo['body_part'] as String?,
+          muscleGroup: catalogo['muscle_group'] as String,
+          categoria: catalogo['category'] as String,
         ),
         serie: serieRighe
           .map((s) => Serie(
@@ -68,6 +76,11 @@ class SchedeRepository{
           )).toList(),
       );
     }).toList();
+
+    for(EsercizioProgrammato es in esercizi){
+      print("----- TUTTI GLI ESERCIZI ----- \n ${es.esercizio.muscleGroup}");
+
+    }
 
     return SchedaAllenamento(
       id: riga['id'] as String,

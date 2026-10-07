@@ -34,9 +34,9 @@ class Corso{
       nome: json['nome'] ?? 'Corso senza nome',
       orario: json['orario'] ?? '--:--',
       giorno: json['giorno'] ?? '',
-      partecipantiMassimi: json['partecipantimax'] as int,
-      partecipantiTotali: json['partecipantiTot'] as int,
-      urlImg: json['urlImg'] ?? ''
+      partecipantiMassimi: json['posti_max'] as int,
+      partecipantiTotali: json['posti_occupati'] as int,
+      urlImg: json['img_url'] ?? ''
     );
   }
   factory Corso.fromJsonProva(
