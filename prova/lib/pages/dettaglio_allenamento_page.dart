@@ -25,7 +25,7 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
   Widget build(BuildContext context){
     for(int i = 0; i< widget.scheda.esercizi.length; i++){
       print("");
-      print("Pisello, ${widget.scheda.esercizi[i].id}");
+      print("Pisello, ${widget.scheda.esercizi[i].esercizio.debugExercise()}");
     }
     return Scaffold(
       appBar: AppBar(title: Text(widget.scheda.titolo), centerTitle: true,),

@@ -1,5 +1,8 @@
 import 'package:prova/models/gruppo_muscolare.dart';
 
+const String mediaBaseUrl =
+    'https://raw.githubusercontent.com/hasaneyldrm/exercises-dataset/main';
+
 class Esercizio{
 
   final String id;
@@ -67,6 +70,25 @@ class Esercizio{
     );
   }
 
+  factory Esercizio.fromDbMap(
+    Map<String, dynamic> dbMap
+  ){
+    final percorso = dbMap['gif_path'] as String?;
+    final gifUrl = (percorso != null || percorso!.isEmpty)
+    ? '$mediaBaseUrl/$percorso'
+    : null;
+    return Esercizio(
+      id: dbMap['id'] as String,
+      nome: dbMap['name'] as String,
+      categoria: dbMap['category'] as String,
+      parteDelCorpo: dbMap['body_part'] as String,
+      equipaggiamento: dbMap['equipment'] as String,
+      target: dbMap['target'] as String,
+      gifPath: gifUrl,
+      muscleGroup: dbMap['muscle_group'],
+    );
+  }
+
   List<String> stepsFor(String lang) =>
     instrucionSteps[lang] ?? instrucionSteps['en'] ?? const[];
 
@@ -75,6 +97,17 @@ class Esercizio{
 
   String? gifUrl(String baseUrl) =>
     gifPath == null ? null : '$baseUrl/$gifPath';
+  
+  String? _url(String? percorso){
+    if(percorso == null || percorso.isEmpty) return null;
+    return '$mediaBaseUrl/$percorso';
+  }
+
+
+  
+  String debugExercise(){
+    return "id: ${id}\nnome: ${nome}\ncategoria: ${categoria}\nparte del corpo: ${parteDelCorpo}\nequipaggiamento: ${equipaggiamento}\ntarget: ${target}\nmuscle group: ${muscleGroup}\nimage: ${imagePath}\ngif: ${gifPath}\nattribution: ${attribution}";
+  }
   
 
 }
