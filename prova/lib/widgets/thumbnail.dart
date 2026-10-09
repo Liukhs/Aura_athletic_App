@@ -11,7 +11,9 @@ class Thumbnail extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return GestureDetector(
-      onTap: () => mostraVideoEsercizio(context, esercizio), 
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => VideoEsercizio(esercizio: esercizio)));
+      }, 
       child: Container(
         width: 60,
         height: 60,

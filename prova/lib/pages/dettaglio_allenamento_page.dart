@@ -110,10 +110,10 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                         const SizedBox(height: 15),
                         const Row(
                           children: [
-                            Expanded(flex: 1, child: Text("SERIE", textAlign: TextAlign.left, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 2, child: Text("KG", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 2, child: Text("REPS", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: SizedBox())
+                            Expanded(flex: 1, child: Text("SERIE", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: Text("KG", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: Text("REPS", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
+                            Expanded(flex: 1, child: Icon(Icons.check, color: Colors.grey, size: 18,))
                           ],
                         ),
                         const Divider(color: Colors.grey),
@@ -124,16 +124,48 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                           child: Row(
                             children: [
                               //numero serie
-                              Expanded(flex: 1, child: Text("${i+1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold))),
-                              Expanded(flex: 2, child: Center(
-                                child: Text("${es.serie[i].peso ?? '-'}", style: const TextStyle(fontSize: 16)),
+                              Expanded(flex: 1, child: Center( child: Text("${i+1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)))),
+                              Expanded(flex: 1, child: Center(
+                                child: Container(
+                                  width: 60,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(color: Color(0xFF121212).withOpacity(0.12), width: 0.5),
+                                    color: Color(0xFF121212),
+
+                                  ),
+                                  child: Text("${es.serie[i].peso ?? '-'}", style: const TextStyle(fontSize: 16)),
+                                ),
                               )
                             ),
-                            Expanded(flex: 2, child: Center(
-                              child: Text("${es.serie[i].ripetizioni}", style: const TextStyle(fontSize: 16)),
+                            Expanded(flex: 1, child: Center(
+                              child: Container(
+                                width: 60,
+                                alignment: Alignment.center,
+                                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(30),
+                                    border: Border.all(color: Color(0xFF121212), width: 0.5),
+                                    color: Color(0xFF121212),
+                                ),
+                                child: Text("${es.serie[i].ripetizioni ?? '-'}", style: const TextStyle(fontSize: 16)),
+                              ),
                             )
                           ),
-                          Expanded(flex: 1, child: Icon(Icons.check_box_outline_blank))
+                          Expanded(
+                            flex: 1, 
+                            child: Container(
+                              width: 30,
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(30),
+                                border: Border.all(color: Color(0xFF121212), width: 0.5),
+                                color: Color(0xFF121212),
+                              ),
+                              child: Icon(Icons.check, color: Colors.grey,)),
+                              ),
                           ],
                         ),
                       ),

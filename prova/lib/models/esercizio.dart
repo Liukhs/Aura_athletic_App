@@ -77,6 +77,8 @@ class Esercizio{
     final gifUrl = (percorso != null || percorso!.isEmpty)
     ? '$mediaBaseUrl/$percorso'
     : null;
+    final jsonString = dbMap['instruction_steps'] as Map<String, dynamic>? ?? {};
+
     return Esercizio(
       id: dbMap['id'] as String,
       nome: dbMap['name'] as String,
@@ -86,6 +88,7 @@ class Esercizio{
       target: dbMap['target'] as String,
       gifPath: gifUrl,
       muscleGroup: dbMap['muscle_group'],
+      instrucionSteps: jsonString.map((lang, steps) => MapEntry(lang, (steps as List).cast<String>()))
     );
   }
 
@@ -106,7 +109,7 @@ class Esercizio{
 
   
   String debugExercise(){
-    return "id: ${id}\nnome: ${nome}\ncategoria: ${categoria}\nparte del corpo: ${parteDelCorpo}\nequipaggiamento: ${equipaggiamento}\ntarget: ${target}\nmuscle group: ${muscleGroup}\nimage: ${imagePath}\ngif: ${gifPath}\nattribution: ${attribution}";
+    return "id: ${id}\nnome: ${nome}\ncategoria: ${categoria}\nparte del corpo: ${parteDelCorpo}\nequipaggiamento: ${equipaggiamento}\ntarget: ${target}\nmuscle group: ${muscleGroup}\nimage: ${imagePath}\ngif: ${gifPath}\nattribution: ${attribution}, instruction steps ${instrucionSteps}";
   }
   
 
