@@ -6,6 +6,7 @@ import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/corso.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
+import 'package:prova/models/serie_completate.dart';
 import 'package:prova/models/utente.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
@@ -177,12 +178,12 @@ class DatabaseHelper {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  Future<void> salvaAllenamentoCompletato(AllenamentoCompletato allenamento) async{
+  Future<void> salvaAllenamentoCompletato(AllenamentoCompletato allenamento, String userId) async{
     final db = await instance.database;
 
     await db.insert(
       'sessioni_allenamento', 
-      allenamento.toMap(), 
+      allenamento.toMap(userId), 
       conflictAlgorithm: ConflictAlgorithm.replace
     );
   }
@@ -192,7 +193,7 @@ class DatabaseHelper {
     await db.transaction((txn) async{
       await txn.insert(
         'sessioni_allenamento',
-         allenamento.toMap(),
+         allenamento.toMap(userId),
           conflictAlgorithm: ConflictAlgorithm.replace
         );
 
@@ -206,6 +207,30 @@ class DatabaseHelper {
         whereArgs: [userId],
       );
     });
+  }
+
+ 
+  Future<void> salvaAllenamentoConSerie(
+    AllenamentoCompletato allenamento, 
+    List<SerieCompletate> serie,
+    String userId,
+    String sessioneId
+  ) async{
+    final db = await instance.database;
+    await db.transaction((txn) async{
+      //Prima salviamo la sessione
+      await txn.insert(
+        'sessioni_allenamento',
+         allenamento.toMap(userId)
+        );
+      
+      final batch = txn.batch();
+      for(final s in serie){
+        batch.insert('risultati_esercizi', s.toMap(sessioneId));
+      }
+      await batch.commit(noResult: true);;
+    });
+
   }
 
   Future<void> salvaUtenteCorrente({
@@ -321,6 +346,16 @@ class DatabaseHelper {
       return AllenamentoCompletato.fromMap(maps[i]);
     });
   }
+  Future<List<SerieCompletate>> ottieniCronologiaSerie(String sessioneId) async{
+    final db = await instance.database;
+    final List<Map<String, dynamic>> maps = await db.query('risultati_esercizi', where: 'sessione_id = ?', whereArgs: [sessioneId]);
+    print('RIGHE DAL DB: $maps');
+
+    return List.generate(maps.length, (i){
+      return SerieCompletate.fromMap(maps[i]);
+    });
+  }
+
 
   Future<void> stampaTuttoIlDatabase() async {
   try {

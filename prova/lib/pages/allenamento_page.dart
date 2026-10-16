@@ -8,6 +8,7 @@ import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio_programmato.dart';
 import 'package:prova/models/scheda_allenamento.dart';
 import 'package:prova/models/serie.dart';
+import 'package:prova/models/serie_completate.dart';
 import 'dart:async';
 import 'package:prova/pages/riepilogo_page.dart';
 import 'package:prova/services/notification_service.dart';
@@ -47,6 +48,9 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
   final Map<String, TextEditingController> _ripControllers = {};
   final Map<String, FocusNode> _pesoFocusNodes = {};
   final Map<String, FocusNode> _ripFocusNodes = {};
+
+  //Lista per le serie completate da salvare nel Database
+  List<SerieCompletate> serieCompletateList = [];
 
   String _serieKey(EsercizioProgrammato es, int index) {
     final esercizioIndex = widget.scheda.esercizi.indexOf(es);
@@ -182,14 +186,34 @@ class _PaginaAllenamentoState extends State<PaginaAllenamento> {
 
   void salvaAllenamento() async{
     Sessione().utenteCorrente!.allenamentiFatti += 1;
-    AllenamentoCompletato daSalvare = AllenamentoCompletato(id: widget.scheda.id, nome: widget.scheda.titolo, tempoMinuti: _tempoTotale, volume: volume, bpm: 120, data: DateTime.now());
+    AllenamentoCompletato daSalvare = AllenamentoCompletato( nome: widget.scheda.titolo, tempoMinuti: _tempoTotale, volume: volume, bpm: 120, data: DateTime.now(), schedaId: widget.scheda.id, esercizi: widget.scheda.esercizi );
+    _riempiListaSerie();
+    debugPrint('PRIMA DI SALVARE: ${serieCompletateList.map((s) => s.exerciseId).toList()}');
     final db = await DatabaseHelper.instance; 
     //await  DatabaseHelper.instance.salvaAllenamentoCompletato(daSalvare);
     //await DatabaseHelper.instance.aggiornaAllenamentiFatti(
     //  Sessione().utenteCorrente!.id,
     //  Sessione().utenteCorrente!.allenamentiFatti
     //);
-    await DatabaseHelper.instance.salvaAllenamenti(daSalvare, Sessione().utenteCorrente!.allenamentiFatti, Sessione().utenteCorrente!.id);
+    await DatabaseHelper.instance.salvaAllenamentoConSerie(daSalvare, serieCompletateList, Sessione().utenteCorrente!.id, daSalvare.id );
+  }
+
+  void _riempiListaSerie(){
+    int counter = 0;
+    serieCompletateList.clear();
+    for(final es in widget.scheda.esercizi){
+      for(final (i, serie) in es.serie.indexed){
+        if(serie.completata){
+          serieCompletateList.add(SerieCompletate(
+            nomeEsercizio: es.esercizio.nome, 
+            numeroSerie: i+1, 
+            peso: serie.peso ?? 0, 
+            ripetizioni: serie.ripetizioni ?? 0,
+            exerciseId: es.esercizio.id  
+          ));
+        }
+      }
+    }
   }
 
 
@@ -232,8 +256,8 @@ Widget build(BuildContext context) {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
-                        foregroundColor: Colors.black,
+                        backgroundColor: Color(0xFF007AFF),
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: const Text("TERMINA", style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
@@ -344,8 +368,8 @@ Widget build(BuildContext context) {
                             ElevatedButton(
                               onPressed: () => _addRigaSerie(es),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orangeAccent,
-                                foregroundColor: Colors.black,
+                                backgroundColor: Color(0xFF007AFF),
+                                foregroundColor: Colors.white,
                                 minimumSize: const Size(double.infinity, 40),
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
@@ -495,13 +519,21 @@ Widget build(BuildContext context) {
       duration: const Duration(milliseconds: 300),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: isFatta ? Colors.green.withOpacity(0.50) : Colors.transparent,
+        //color: isFatta ? Colors.green.withOpacity(0.50) : Colors.transparent,
         borderRadius: BorderRadius.circular(8)
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Expanded(flex: 1, child: Text("${index + 1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold))),
-          Expanded(flex: 2, child: Center(child: TextFormField(
+          Center( child: Container( width: 60, child: Text("${index + 1}", style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))),
+          Center( child: Container( width: 60,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Color(0xFF121212).withOpacity(0.12), width: 0.5),
+              color: isFatta ? Colors.green: Color(0xFF121212),
+            ),
+           child: TextFormField(
             controller: controllerPeso,
             focusNode: focusPeso,
             onTap: (){
@@ -523,28 +555,43 @@ Widget build(BuildContext context) {
           )
           )
           ),
-          Expanded(flex: 2, child: Center(child: TextFormField(
-            controller: controllerRip,
-            focusNode: focusRip,
-            onTap: (){
-              _selectAll(controllerRip);
-            },
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white),
-            decoration: const InputDecoration(
-              border: InputBorder.none,        // Toglie il bordo di default
-              enabledBorder: InputBorder.none, // Toglie il bordo quando non è cliccato
-              focusedBorder: InputBorder.none, // Toglie il bordo quando lo stai editando
-              isDense: true,                   // Riduce lo spazio interno (padding)
-              contentPadding: EdgeInsets.zero
+          Center( child: Container(
+            width: 60,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Color(0xFF121212).withOpacity(0.12), width: 0.5),
+              color: isFatta ? Colors.green: Color(0xFF121212),
+            ), 
+            child: TextFormField(
+              controller: controllerRip,
+              focusNode: focusRip,
+              onTap: (){
+                _selectAll(controllerRip);
+              },
+              keyboardType: TextInputType.number,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                border: InputBorder.none,        // Toglie il bordo di default
+                enabledBorder: InputBorder.none, // Toglie il bordo quando non è cliccato
+                focusedBorder: InputBorder.none, // Toglie il bordo quando lo stai editando
+                isDense: true,                   // Riduce lo spazio interno (padding)
+                contentPadding: EdgeInsets.zero
+              ),
+              onChanged: (val){
+                es.serie[index].ripetizioni = int.tryParse(val) ?? es.serie[index].ripetizioni;
+              }
+            ))),
+          Center( 
+            child:Container(width: 60,
+            alignment: Alignment.center, 
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(color: Color(0xFF121212).withOpacity(0.12), width: 0.5),
+              color: isFatta ? Colors.green: Color(0xFF121212),
             ),
-            onChanged: (val){
-              es.serie[index].ripetizioni = int.tryParse(val) ?? es.serie[index].ripetizioni;
-            }
-          ))),
-          Expanded(flex: 1, 
-            child: GestureDetector(
+            child:GestureDetector(
               onTap: () {
                 setState(() {
                   es.serie[index].completata = !es.serie[index].completata;
@@ -559,10 +606,12 @@ Widget build(BuildContext context) {
                 }
               },
               child: Icon(
-                es.serie[index].completata ? Icons.check_box : Icons.check_box_outline_blank,
-                color: es.serie[index].completata ? Colors.orangeAccent : Colors.grey,
+                Icons.check,
+                color: es.serie[index].completata ? Colors.white : Colors.grey,
+                
               ),
             ),
+            )
           )
         ],
       )

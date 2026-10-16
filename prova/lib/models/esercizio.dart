@@ -37,6 +37,17 @@ class Esercizio{
     Map<String, dynamic> json,
   ){
     final rawSteps = json['instruction_steps'] as Map<String, dynamic>? ?? {};
+    
+    final imgPath = json['image_path'] as String?;
+    final imgUrl = (imgPath != null || imgPath!.isEmpty)
+    ? '$mediaBaseUrl/$imgPath'
+    : null;
+
+    final gifPath = json['gif_path'] as String?;
+    final gifUrl = (gifPath != null || gifPath!.isEmpty)
+    ? '$mediaBaseUrl/$gifPath'
+    : null;
+
     return Esercizio(
       id: json['id'] as String,
       nome: json['name'] as String,
@@ -47,8 +58,8 @@ class Esercizio{
       muscleGroup: json['muscle_group'] as String?,
       secondaryMuscle: (json['secondary_muscles'] as List?)?.cast<String>() ?? const [],
       instrucionSteps: rawSteps.map((lang, steps) => MapEntry(lang, (steps as List).cast<String>())),
-      imagePath: json['image_path'] as String?,
-      gifPath: json['gif_path'] as String?,
+      imagePath: imgUrl,
+      gifPath: gifUrl,
       attribution: json['attribution'] as String?
     );
   }
@@ -79,6 +90,11 @@ class Esercizio{
     : null;
     final jsonString = dbMap['instruction_steps'] as Map<String, dynamic>? ?? {};
 
+    final percorsoImg = dbMap['image_path'] as String?;
+    final imageUrl = (percorsoImg != null || percorsoImg!.isEmpty)
+    ? '$mediaBaseUrl/$percorsoImg'
+    : null;
+
     return Esercizio(
       id: dbMap['id'] as String,
       nome: dbMap['name'] as String,
@@ -87,6 +103,7 @@ class Esercizio{
       equipaggiamento: dbMap['equipment'] as String,
       target: dbMap['target'] as String,
       gifPath: gifUrl,
+      imagePath: imageUrl,
       muscleGroup: dbMap['muscle_group'],
       instrucionSteps: jsonString.map((lang, steps) => MapEntry(lang, (steps as List).cast<String>()))
     );

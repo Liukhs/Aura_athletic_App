@@ -96,7 +96,8 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: (){
-          Navigator.push(context, MaterialPageRoute(builder:(context)=> AllenamentoCompletatoPage()));
+          debugPrint("${sessione.esercizi.length}");
+          Navigator.push(context, MaterialPageRoute(builder:(context)=> AllenamentoCompletatoPage(scheda: sessione)));
         },
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

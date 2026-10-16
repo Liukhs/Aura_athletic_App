@@ -23,35 +23,54 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
   
   @override
   Widget build(BuildContext context){
-    for(int i = 0; i< widget.scheda.esercizi.length; i++){
-      print("");
-      print("Pisello, ${widget.scheda.esercizi[i].esercizio.debugExercise()}");
-    }
+
     return Scaffold(
       appBar: AppBar(title: Text(widget.scheda.titolo), centerTitle: true,),
       body: Column(
         children: [
-          Padding(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: 150,
+                height: 50,
+                child: ElevatedButton(onPressed: (){
+                  final nuovaScheda = widget.scheda.copy();
+                  Sessione().schedaAttiva = nuovaScheda;
+                  Sessione().orarioInizio = DateTime.now();
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaAllenamento(scheda:  nuovaScheda)));
+                }, style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF007AFF),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text("AVVIA ALLENAMENTO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 8)),
+                ),
+              ),    
+            ),
+            Padding(
             padding: const EdgeInsets.all(16.0),
             child: SizedBox(
-              width: 200,
+              width: 140,
               height: 50,
-              child: ElevatedButton(onPressed: (){
-                final nuovaScheda = widget.scheda.copy();
-                Sessione().schedaAttiva = nuovaScheda;
-                Sessione().orarioInizio = DateTime.now();
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PaginaAllenamento(scheda:  nuovaScheda)));
-              }, style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                foregroundColor: Colors.black,
+              child:ElevatedButton(
+            onPressed: (){},
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF007AFF),
+                foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text("AVVIA ALLENAMENTO", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ),
-            ),    
+              child: Text("Aggiungi Esercizio", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10))
+          ),
+            ),
+          )
+          ]
           ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -108,12 +127,13 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                           ],
                         ),
                         const SizedBox(height: 15),
-                        const Row(
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            Expanded(flex: 1, child: Text("SERIE", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Text("KG", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Text("REPS", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold))),
-                            Expanded(flex: 1, child: Icon(Icons.check, color: Colors.grey, size: 18,))
+                            Center( child: Container(width: 60, child: Text("SERIE", textAlign: TextAlign.left, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)))),
+                            Center( child: Container(width: 60, child: Text("KG", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)))),
+                            Center( child: Container(width: 60, child: Text("REPS", textAlign: TextAlign.center, style: TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold)))),
+                            Center( child: Container(width: 60, child: Icon(Icons.check, color: Colors.grey, size: 18,)))
                           ],
                         ),
                         const Divider(color: Colors.grey),
@@ -122,10 +142,11 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               //numero serie
-                              Expanded(flex: 1, child: Center( child: Text("${i+1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)))),
-                              Expanded(flex: 1, child: Center(
+                              Center( child: Container(width: 60, alignment: Alignment.centerLeft, child:Text("${i+1}", style: const TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)))),
+                              Center(
                                 child: Container(
                                   width: 60,
                                   alignment: Alignment.center,
@@ -137,13 +158,13 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                                   ),
                                   child: Text("${es.serie[i].peso ?? '-'}", style: const TextStyle(fontSize: 16)),
                                 ),
-                              )
-                            ),
-                            Expanded(flex: 1, child: Center(
+                              ),
+                            
+                            Center(
                               child: Container(
                                 width: 60,
                                 alignment: Alignment.center,
-                                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 3),
+                                
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(30),
                                     border: Border.all(color: Color(0xFF121212), width: 0.5),
@@ -151,21 +172,17 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
                                 ),
                                 child: Text("${es.serie[i].ripetizioni ?? '-'}", style: const TextStyle(fontSize: 16)),
                               ),
-                            )
-                          ),
-                          Expanded(
-                            flex: 1, 
-                            child: Container(
-                              width: 30,
+                            ),
+                          
+                          Container(
+                              width: 60,
                               alignment: Alignment.center,
-                              padding: EdgeInsets.symmetric(horizontal: 14, vertical: 3),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 border: Border.all(color: Color(0xFF121212), width: 0.5),
                                 color: Color(0xFF121212),
                               ),
                               child: Icon(Icons.check, color: Colors.grey,)),
-                              ),
                           ],
                         ),
                       ),
@@ -176,24 +193,6 @@ class _PaginaDettaglioAllenamentoState extends State<PaginaDettaglioAllenamento>
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: 200,
-              height: 50,
-              child:ElevatedButton(
-            onPressed: (){},
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text("Aggiungi Esercizio", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14))
-          ),
-            ),
-          )
         ],
       )
     );
