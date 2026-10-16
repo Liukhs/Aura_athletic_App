@@ -139,8 +139,8 @@ class _MainScreenState extends State<MainScreen> {
           bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed, // Evita spostamenti strani se hai 4+ icone
-            backgroundColor: const Color(0xFF1E1E1E),
-            selectedItemColor: Colors.orangeAccent,
+            backgroundColor: const Color(0xFF000000),
+            selectedItemColor: Colors.blueAccent,
             unselectedItemColor: Colors.grey,
             onTap: (int index) {
               setState(() {

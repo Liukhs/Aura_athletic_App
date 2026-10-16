@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prova/data/database_helper.dart';
+import 'package:prova/data/sessione.dart';
 import 'package:prova/models/allenamento_completato.dart';
 import 'package:prova/models/esercizio.dart';
 import 'package:prova/models/scheda_allenamento.dart';
@@ -83,9 +85,201 @@ class _AllenamentoCompletatoPageState extends State<AllenamentoCompletatoPage>{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Row(
+          children: [
+            Container(
+              alignment: Alignment.center,
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(40),
+                color: Colors.white
+              ),
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: Colors.blueAccent,
+                backgroundImage: (Sessione().utenteCorrente!.fotoUrl != null && Sessione().utenteCorrente!.fotoUrl!.isNotEmpty)
+                    ? FileImage(File(Sessione().utenteCorrente!.fotoUrl!)) as ImageProvider
+                    : null,
+                child: (Sessione().utenteCorrente!.fotoUrl == null || Sessione().utenteCorrente!.fotoUrl!.isEmpty)
+                      ? const Icon(Icons.person, size: 40, color: Colors.blueAccent,)
+                      : null,
+              ),
+            ),
+            SizedBox(width: 12),
+            Column(children: [
+            Container(
+              constraints: BoxConstraints(
+                minWidth: 100,
+              ),
+              alignment: Alignment.topLeft,
+              child: Text(
+                "${Sessione().utenteCorrente!.nome}",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                ),
+              ),
+            ),
+            SizedBox(height: 2),
+            Container(
+              constraints: BoxConstraints(
+                minWidth: 100,
+              ),
+              alignment: Alignment.topLeft,
+              child: Text(
+                '${DateFormat('dd/MM/yyyy').format(a.data)}',
+                style: TextStyle(
+                  color: Colors.grey 
+                ),
+              ),
+            )
+            ]
+            ),
+          ],
+        ),
+        SizedBox(height: 6),
         Text(a.nome, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),),
         const SizedBox(height: 4,),
-        Text('${DateFormat('dd/MM/yyyy').format(a.data)}  •  Volume: ${a.volume.toStringAsFixed(0)} kg', style: const TextStyle(color: Colors.grey),)
+        Row(
+          children: [
+            Column(                            
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    "Volume",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                Row(children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "${a.volume.toStringAsFixed(0)}",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+                SizedBox(width: 2,),
+                Container(
+                  height: 25,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    "Kg",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                ]
+                )
+              ],
+            ),
+            SizedBox(width: 8,),
+            Column(                            
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    "Durata",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                Row(children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "${a.tempoMinuti}",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+                SizedBox(width: 2,),
+                Container(
+                  height: 25,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    "",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                ]
+                )
+              ],
+            ),
+            SizedBox(width: 8),
+            Column(                            
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  alignment: Alignment.topCenter,
+                  child: Text(
+                    "Volume",
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                Row(children: [
+                Container(
+                  alignment: Alignment.center,
+                  child: Text(
+                    "",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+                SizedBox(width: 2,),
+                Container(
+                  height: 25,
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    "Kg",
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.grey
+                    ),
+                  ),
+                ),
+                ]
+                )
+              ],
+            ),
+
+          ],
+        ),
       ],
     );
   }
@@ -138,15 +332,15 @@ class _AllenamentoCompletatoPageState extends State<AllenamentoCompletatoPage>{
         color: const Color(0xFF1E1E1E),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: Padding(
-          padding: EdgeInsets.all(14.0),
+          padding: EdgeInsets.symmetric(horizontal: 14.0, vertical: 7),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   Container(
-                    width: 60,
-                    height: 60,
+                    width: 70,
+                    height: 70,
                     clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
                         color: Colors.grey[800],
@@ -156,18 +350,56 @@ class _AllenamentoCompletatoPageState extends State<AllenamentoCompletatoPage>{
                       child: _thumbnailEsercizio(serie[0].exerciseId!)
                   ),
                   const SizedBox(width: 6),
-                  Container(
-                    height: 60,
-                    alignment: Alignment.bottomCenter,
-                    child: Text(
-                    serie[0].nomeEsercizio,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18) 
+                  Expanded( 
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          
+                          child: Text(
+                          serie[0].nomeEsercizio,
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          overflow: TextOverflow.ellipsis, 
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Column(                            
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  alignment: Alignment.topCenter,
+                                  child: Text(
+                                    "Volume",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.grey
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    "${_calcolaVolumeEsercizio(serie)}",
+                                    style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.white
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ],
+                        )
+                      ],
+                    )
                   ),
-                  )
-                  
                 ],
               ),
-              
               const SizedBox(height: 8,),
               for(final s in serie)...[
                 _buildRigaSerie(s, s.nomeEsercizio),
@@ -202,10 +434,42 @@ class _AllenamentoCompletatoPageState extends State<AllenamentoCompletatoPage>{
           child: Text(
             "${serie.peso}x${serie.ripetizioni}"
           ),
+        ),
+        SizedBox(width: 8,),
+        Container(
+          constraints: const BoxConstraints(
+            minWidth: 80
+          ),
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: Colors.blueAccent
+          ),
+          child: Text(
+            "${serie.peso}x${serie.ripetizioni}"
+          ),
         )
-
       ],
     );
+  }
+
+  double _calcolaVolumeEsercizio(List<SerieCompletate> lista){
+    double volumeEsercizio = 0;
+    for(final serie in lista){
+      volumeEsercizio += (serie.peso * serie.ripetizioni);
+    }
+    return volumeEsercizio;
+  }
+
+  Future<int> _calcolaNumeroSerie(Future<List<SerieCompletate>> futureLista) async{
+    final List<SerieCompletate> lista = await futureLista;
+    int numeroSerie = 0;
+    for(final serie in lista){
+      numeroSerie += 1;
+    }
+
+    return numeroSerie;
   }
 
   

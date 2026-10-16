@@ -96,7 +96,6 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
       child: InkWell(
         borderRadius: BorderRadius.circular(15),
         onTap: (){
-          debugPrint("${sessione.esercizi.length}");
           Navigator.push(context, MaterialPageRoute(builder:(context)=> AllenamentoCompletatoPage(scheda: sessione)));
         },
         child: Column(
@@ -119,7 +118,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
               sessione.nome,
               style: TextStyle(fontSize: 18,
               fontWeight: FontWeight.w900,
-              color: Colors.orangeAccent,
+              color: Colors.white,
               letterSpacing: 1.1
               ),
               ),
@@ -140,7 +139,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
                         children: [
                           const Text("Tempo", style: TextStyle(color: Colors.grey, fontSize: 12)),
                           const SizedBox(height: 5),
-                          Text(sessione.tempoMinuti.toString(), style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(sessione.tempoMinuti.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                         ],
                       ),
                     ),
@@ -148,7 +147,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
                       children: [
                         const Text("Volume", style: TextStyle(color: Colors.grey, fontSize: 12)),
                         const SizedBox(height: 5),
-                        Text(sessione.volume.toString(), style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Text(sessione.volume.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
                     ),
                     ),
@@ -157,7 +156,7 @@ class _PaginaRiepilogoState extends State<PaginaRiepilogo>{
                         children: [
                           const Text("BpM", style: TextStyle(color: Colors.grey, fontSize: 12)),
                           const SizedBox(height: 5),
-                          Text(sessione.bpm.toString(), style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(sessione.bpm.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                         ],
                       ),
                     ),

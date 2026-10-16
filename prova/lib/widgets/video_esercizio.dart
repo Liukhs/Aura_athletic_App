@@ -42,6 +42,7 @@ class _VideoEsercizioState extends State<VideoEsercizio> {
       target,
       muscle_group,
       gif_path,
+      image_path,
       instruction_steps
     ''')
         .eq('id', widget.esercizio.id)

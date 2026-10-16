@@ -141,7 +141,7 @@ class _PaginaProfiloState extends State<PaginaProfilo> {
       backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: Text(utente.nome, style: const TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.black,
         elevation: 0,
         actions: [
           IconButton(

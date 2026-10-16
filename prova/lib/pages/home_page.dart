@@ -18,7 +18,7 @@ class PaginaHome extends StatelessWidget{
       listenable: Sessione(),
       builder: (context, child) {
         return Scaffold(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.black,
           appBar: AppBar(
             title: const Text('HOME', style: TextStyle(fontWeight: FontWeight.bold)),
             centerTitle: false,
